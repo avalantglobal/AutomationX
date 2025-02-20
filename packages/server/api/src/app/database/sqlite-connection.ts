@@ -5,7 +5,7 @@ import { ApEdition, ApEnvironment } from '@activepieces/shared'
 import { DataSource, MigrationInterface } from 'typeorm'
 import { system } from '../helper/system/system'
 import { commonProperties } from './database-connection'
-import { Migration1740023782914 } from './migration/common/1740023782914-migration'
+import { InitialSqlite1740031972943 } from './migration/sqlite/1740031972943-initial-sqlite'
 
 const getSqliteDatabaseFilePath = (): string => {
     const apConfigDirectoryPath = system.getOrThrow(AppSystemProp.CONFIG_PATH)
@@ -28,7 +28,7 @@ const getSqliteDatabase = (): string => {
 
 const getMigrations = (): (new () => MigrationInterface)[] => {
     const communityMigrations: (new () => MigrationInterface)[] = [
-      Migration1740023782914,
+      InitialSqlite1740031972943
     ]
 
     const edition = system.getEdition()

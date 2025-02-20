@@ -4,7 +4,8 @@ import { ApEdition, ApEnvironment, isNil } from '@activepieces/shared'
 import { DataSource, MigrationInterface } from 'typeorm'
 import { system } from '../helper/system/system'
 import { commonProperties } from './database-connection'
-import { Migration1740023782914 } from './migration/common/1740023782914-migration'
+import { AddPgLocaleCollation1740031341436 } from './migration/postgres/1740031341436-add-pg-locale-collation'
+import { InitialPg1740031656104 } from './migration/postgres/1740031656104-initial-pg'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(AppSystemProp.POSTGRES_USE_SSL)
@@ -18,7 +19,8 @@ const getSslConfig = (): boolean | TlsOptions => {
 
 const getMigrations = (): (new () => MigrationInterface)[] => {
     const commonMigration: (new () => MigrationInterface)[] = [
-      Migration1740023782914,
+      AddPgLocaleCollation1740031341436,
+      InitialPg1740031656104,
     ]
 
     const edition = system.getEdition()

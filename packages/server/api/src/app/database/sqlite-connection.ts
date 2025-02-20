@@ -5,6 +5,7 @@ import { ApEdition, ApEnvironment } from '@activepieces/shared'
 import { DataSource, MigrationInterface } from 'typeorm'
 import { system } from '../helper/system/system'
 import { commonProperties } from './database-connection'
+import { Migration1740023782914 } from './migration/common/1740023782914-migration'
 
 const getSqliteDatabaseFilePath = (): string => {
     const apConfigDirectoryPath = system.getOrThrow(AppSystemProp.CONFIG_PATH)
@@ -26,7 +27,10 @@ const getSqliteDatabase = (): string => {
 }
 
 const getMigrations = (): (new () => MigrationInterface)[] => {
-    const communityMigrations: (new () => MigrationInterface)[] = []
+    const communityMigrations: (new () => MigrationInterface)[] = [
+      Migration1740023782914,
+    ]
+
     const edition = system.getEdition()
     if (edition !== ApEdition.COMMUNITY) {
         throw new Error(`Edition ${edition} not supported in sqlite3 mode`)

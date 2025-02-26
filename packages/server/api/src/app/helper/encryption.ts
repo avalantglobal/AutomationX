@@ -24,18 +24,14 @@ export type EncryptedObject = Static<typeof EncryptedObject>
 const loadEncryptionKey = async (queueMode: QueueMode): Promise<string | null> => {
     secret = system.get(AppSystemProp.ENCRYPTION_KEY) ?? null
     
-    console.log("=====loadEncryptionKey1:",secret)
     if (queueMode === QueueMode.MEMORY) {
         if (isNil(secret)) {
             secret = await localFileStore.load(AppSystemProp.ENCRYPTION_KEY)
-            console.log("=====loadEncryptionKey2:",secret)
         }
         if (isNil(secret)) {
             secret = await generateAndStoreSecret()
-            console.log("=====loadEncryptionKey3:",secret)
         }
     }
-    console.log("=====loadEncryptionKey:",secret)
     return secret
 }
 
@@ -67,7 +63,6 @@ function encryptObject(object: unknown): EncryptedObject {
 }
 
 function decryptObject<T>(encryptedObject: EncryptedObject): T {
-    console.log("decryptObject secret",secret)
     const iv = Buffer.from(encryptedObject.iv, 'hex')
     const key = Buffer.from(secret!, 'binary')
     const decipher = crypto.createDecipheriv(algorithm, key, iv)

@@ -19,8 +19,8 @@ const getSslConfig = (): boolean | TlsOptions => {
 
 const getMigrations = (): (new () => MigrationInterface)[] => {
     const commonMigration: (new () => MigrationInterface)[] = [
-      AddPgLocaleCollation1740031341436,
-      InitialPg1740031656104,
+    //   AddPgLocaleCollation1740031341436,
+    //   InitialPg1740031656104,
     ]
 
     const edition = system.getEdition()

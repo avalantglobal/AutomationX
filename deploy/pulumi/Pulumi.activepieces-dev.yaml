@@ -8,7 +8,7 @@ config:
   activepieces:containerCpu: "256"
   activepieces:containerMemory: "512"
   activepieces:containerInstances: "1"
-  activepieces:usePostgres: "false"
+  activepieces:usePostgres: "true"
   activepieces:dbInstanceClass: "db.t3.small"
   activepieces:dbUsername: "postgres"
   activepieces:dbIsPublic: "false"

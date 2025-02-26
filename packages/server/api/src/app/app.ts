@@ -92,6 +92,8 @@ import { websocketService } from './websockets/websockets.service'
 import { flowConsumer } from './workers/consumer'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 import { workerModule } from './workers/worker-module'
+import { templateModule } from './template/template.module'
+
 
 export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> => {
 
@@ -213,6 +215,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     await app.register(triggerEventModule)
     await app.register(appEventRoutingModule)
     await app.register(authenticationModule)
+    await app.register(templateModule)
     await app.register(copilotModule),
     await app.register(platformModule)
     await app.register(humanInputModule)

@@ -23,3 +23,5 @@ build
 .venv
 __pycache__
 logs
+**/node_modules/
+release_log

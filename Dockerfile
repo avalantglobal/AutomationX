@@ -89,9 +89,14 @@ COPY --from=build /usr/src/app/dist/packages/react-ui /usr/share/nginx/html/
 
 LABEL service=activepieces
 
-# Set up entrypoint script
-COPY docker-entrypoint.sh .
-RUN chmod +x docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
+# # Set up entrypoint script
+# COPY docker-entrypoint.sh .
+# RUN chmod +x docker-entrypoint.sh
+# ENTRYPOINT ["./docker-entrypoint.sh"]
 
-EXPOSE 80
+# EXPOSE 80
+
+EXPOSE 80 3005
+
+## you can override cmd on docker-compose.yml => command: ["/bin/sh", "-c", "nginx -g 'daemon off;' & node --enable-source-maps dist/packages/server/api/main.js"]
+CMD ["/bin/sh", "-c","nginx -g 'daemon off;' & node --enable-source-maps dist/packages/server/api/main.js "]

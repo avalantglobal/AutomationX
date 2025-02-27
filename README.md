@@ -82,3 +82,7 @@ Read more about the feature comparison here https://www.activepieces.com/docs/ab
 - If `postgres`, then run the containers by `docker compose -f docker-compose.dev.yml up`
 - Start the project using `npm run dev`
 - Go to `http://localhost:4200` for the application UI
+
+## Practices
+- Repository uses commitlint to comply with proper commit message structures
+- Ensure commit-able code is linted and formatted based on the respective config files (eslint, prettier)

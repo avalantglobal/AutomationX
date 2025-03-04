@@ -4,7 +4,7 @@ import path from 'path';
 import { ALL_PRINCIPAL_TYPES } from '@activepieces/shared';
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
-import { getWorkflowApps,getTemplateWorkflows,saveTemplateWorkflow } from './template.service';
+import { getWorkflowApps, getTemplateWorkflows, saveTemplateWorkflow } from './template.service';
 
 
 export const templateController: FastifyPluginAsyncTypebox = async (app) => {
@@ -62,12 +62,10 @@ export const templateController: FastifyPluginAsyncTypebox = async (app) => {
     },
     async (request) => {
       let response = await getWorkflowApps();
-
-      
       return response;
     }
   );
-  
+
   app.get(
     '/getTemplateWorkflows',
     {
@@ -79,7 +77,7 @@ export const templateController: FastifyPluginAsyncTypebox = async (app) => {
     async (request) => {
       let response = await getTemplateWorkflows(request);
 
-      
+
       return response;
     }
   );
@@ -95,7 +93,7 @@ export const templateController: FastifyPluginAsyncTypebox = async (app) => {
     async (request) => {
       let response = await saveTemplateWorkflow(request.body);
 
-      
+
       return response;
     }
   );

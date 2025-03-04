@@ -113,7 +113,6 @@
     "@uiw/codemirror-theme-github": "4.23.0",
     "@uiw/react-codemirror": "4.23.0",
     "@xyflow/react": "12.3.5",
-    "activepieces": "file:",
     "ai": "3.4.27",
     "airtable": "0.11.6",
     "ajv": "8.12.0",

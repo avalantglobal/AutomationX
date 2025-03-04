@@ -1,30 +1,17 @@
 // import { OtpType } from '@activepieces/ee-shared'
-import { cryptoUtils } from '@activepieces/server-shared';
-import {
-  ActivepiecesError,
-  ApEdition,
-  ApFlagId,
-  assertNotNullOrUndefined,
-  AuthenticationResponse,
-  ErrorCode,
-  isNil,
-  PlatformRole,
-  PlatformWithoutSensitiveData,
-  User,
-  UserIdentity,
-  UserIdentityProvider,
-} from '@activepieces/shared';
-import { FastifyBaseLogger } from 'fastify';
+import { cryptoUtils } from '@activepieces/server-shared'
+import { ActivepiecesError, ApEdition, ApFlagId, assertNotNullOrUndefined, AuthenticationResponse, ErrorCode, isNil, PlatformRole, PlatformWithoutSensitiveData, User, UserIdentity, UserIdentityProvider } from '@activepieces/shared'
+import { FastifyBaseLogger } from 'fastify'
 // import { otpService } from '../ee/authentication/otp/otp-service'
-import { flagService } from '../flags/flag.service';
-import { system } from '../helper/system/system';
-import { platformService } from '../platform/platform.service';
-import { platformUtils } from '../platform/platform.utils';
-import { projectService } from '../project/project-service';
-import { userService } from '../user/user-service';
-import { userInvitationsService } from '../user-invitations/user-invitation.service';
-import { authenticationUtils } from './authentication-utils';
-import { userIdentityService } from './user-identity/user-identity-service';
+import { flagService } from '../flags/flag.service'
+import { system } from '../helper/system/system'
+import { platformService } from '../platform/platform.service'
+import { platformUtils } from '../platform/platform.utils'
+import { projectService } from '../project/project-service'
+import { userService } from '../user/user-service'
+import { userInvitationsService } from '../user-invitations/user-invitation.service'
+import { authenticationUtils } from './authentication-utils'
+import { userIdentityService } from './user-identity/user-identity-service'
 
 export const authenticationService = (log: FastifyBaseLogger) => ({
   async signUp(params: SignUpParams): Promise<AuthenticationResponse> {
@@ -82,6 +69,7 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
     const users = await userService.getByIdentityId({
       identityId: identity.id,
     });
+    // todo(Rupal): optimize this
     // const platformId = isNil(params.predefinedPlatformId) ? await getPersonalPlatformIdForIdentity(identity.id) : params.predefinedPlatformId
     let platformId = null;
     for (let a = 0; a < users.length; a++) {
@@ -113,7 +101,7 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
       email: params.email,
       platformId,
     });
-   
+
     const user = await userService.getOneByIdentityAndPlatform({
       identityId: identity.id,
       platformId,

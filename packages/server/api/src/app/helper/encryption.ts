@@ -23,7 +23,6 @@ export type EncryptedObject = Static<typeof EncryptedObject>
 
 const loadEncryptionKey = async (queueMode: QueueMode): Promise<string | null> => {
     secret = system.get(AppSystemProp.ENCRYPTION_KEY) ?? null
-    
     if (queueMode === QueueMode.MEMORY) {
         if (isNil(secret)) {
             secret = await localFileStore.load(AppSystemProp.ENCRYPTION_KEY)

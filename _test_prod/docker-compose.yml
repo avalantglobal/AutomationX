@@ -8,7 +8,6 @@ services:
     ## privileged: true
     ports:
       - '8085:80'
-      - '3005:3005'
     depends_on:
       - redis
     env_file: .env

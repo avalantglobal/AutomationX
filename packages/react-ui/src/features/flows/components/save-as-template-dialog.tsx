@@ -1,3 +1,4 @@
+import { FlowTemplate, FlowVersion, TemplateType } from '@activepieces/shared';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { DialogDescription, DialogTrigger } from '@radix-ui/react-dialog';
 import { Static, Type } from '@sinclair/typebox';
@@ -5,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
 import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+
 import { Button } from '../../../components/ui/button';
 import {
   Dialog,
@@ -12,14 +14,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog';
-import { Form, FormField, FormItem, FormMessage } from '../../../components/ui/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { INTERNAL_ERROR_TOAST, toast } from '../../../components/ui/use-toast';
-import { flowsApi } from '../lib/flows-api';
 import { templatesApi } from '../../templates/lib/templates-api';
-import { FlowTemplate, FlowVersion, TemplateType } from '@activepieces/shared';
-import { projectApi } from '@/lib/project-api';
+import { flowsApi } from '../lib/flows-api';
 
 const SaveAsTemplateSchema = Type.Object({
   name: Type.String(),
@@ -51,20 +56,15 @@ const SaveAsTemplateDialog: React.FC<{
       const template = await flowsApi.getTemplate(flowId, {
         versionId: flowVersion.id,
       });
-      const project = await projectApi.current();
-      const flowTemplate = await templatesApi.saveTemplateWorkflow({
-        name: data.name,
+      const flowTemplate = await templatesApi.create({
         description: data.description,
-        type: TemplateType.PROJECT,
+        type: TemplateType.PLATFORM,
         tags: data.tags || [],
-        pieces: template.pieces,
         blogUrl: template.blogUrl || '',
         template: {
           ...flowVersion,
-          displayName: data.name
+          displayName: data.name,
         },
-        projectId: project.id,
-        platformId: project.platformId,
       });
       return flowTemplate;
     },

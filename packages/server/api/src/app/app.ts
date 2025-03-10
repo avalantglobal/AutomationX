@@ -94,6 +94,7 @@ import { flowConsumer } from './workers/consumer'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 import { workerModule } from './workers/worker-module'
 import { templateModule } from './template/template.module'
+import { flowTemplateModule } from './flow-templates/flow-template.module'
 
 
 export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> => {
@@ -232,6 +233,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     // await app.register(licenseKeysModule)
     await app.register(tablesModule)
     await app.register(userModule)
+    await app.register(flowTemplateModule)
 
     app.get(
         '/redirect',

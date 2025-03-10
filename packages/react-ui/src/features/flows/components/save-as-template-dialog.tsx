@@ -52,7 +52,7 @@ const SaveAsTemplateDialog: React.FC<{
       });
       const flowTemplate = await templatesApi.create({
         description: data.description,
-        type: TemplateType.PROJECT,
+        type: TemplateType.PLATFORM,
         tags: data.tags || [],
         blogUrl: template.blogUrl || '',
         template: {

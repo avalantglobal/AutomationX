@@ -8,12 +8,12 @@ import {
     PlatformRole,
     PrincipalType,
     TemplateType,
-} from '@activepieces/shared';
-import { FastifyPluginAsyncTypebox, Static, Type } from '@fastify/type-provider-typebox';
-import { flowTemplateService } from './flow-template.service';
-import { platformService } from '../platform/platform.service';
-import { StatusCodes } from 'http-status-codes';
-import { userService } from '../user/user-service';
+} from '@activepieces/shared'
+import { FastifyPluginAsyncTypebox, Static, Type } from '@fastify/type-provider-typebox'
+import { StatusCodes } from 'http-status-codes'
+import { platformService } from '../platform/platform.service'
+import { userService } from '../user/user-service'
+import { flowTemplateService } from './flow-template.service'
 
 const GetIdParams = Type.Object({
     id: Type.String(),
@@ -66,8 +66,8 @@ const DeleteParams = {
 }
 
 export const flowTemplateModule: FastifyPluginAsyncTypebox = async (app) => {
-    await app.register(flowTemplateController, { prefix: '/v1/flow-templates' });
-};
+    await app.register(flowTemplateController, { prefix: '/v1/flow-templates' })
+}
 
 const flowTemplateController: FastifyPluginAsyncTypebox = async (fastify) => {
     fastify.get('/:id', GetFlowParams, async (request) => {
@@ -79,7 +79,7 @@ const flowTemplateController: FastifyPluginAsyncTypebox = async (fastify) => {
         return flowTemplateService.list(platform.id, request.query)
     })
 
-    fastify.post('/', CreateParams, async (request, reply) => {
+    fastify.post('/', CreateParams, async (request) => {
         const { type } = request.body
         const platformId = request.principal.platform.id
         if (type === TemplateType.PLATFORM) {
@@ -113,7 +113,7 @@ const flowTemplateController: FastifyPluginAsyncTypebox = async (fastify) => {
         })
         return reply.status(StatusCodes.NO_CONTENT).send()
     })
-};
+}
 
 const checkUserPlatformAdminOrThrow = async (userId: string, platformId: string): Promise<void> => {
     const user = await userService.getOneOrFail({ id: userId })

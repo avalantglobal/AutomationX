@@ -1,4 +1,3 @@
-import { FlowTemplate, FlowVersion, TemplateType } from '@activepieces/shared';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { DialogDescription, DialogTrigger } from '@radix-ui/react-dialog';
 import { Static, Type } from '@sinclair/typebox';
@@ -6,7 +5,6 @@ import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
 import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-
 import { Button } from '../../../components/ui/button';
 import {
   Dialog,
@@ -14,17 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '../../../components/ui/form';
+import { Form, FormField, FormItem, FormMessage } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { INTERNAL_ERROR_TOAST, toast } from '../../../components/ui/use-toast';
-import { templatesApi } from '../../templates/lib/templates-api';
 import { flowsApi } from '../lib/flows-api';
+import { templatesApi } from '../../templates/lib/templates-api';
+import { FlowTemplate, FlowVersion, TemplateType } from '@activepieces/shared';
 
 const SaveAsTemplateSchema = Type.Object({
   name: Type.String(),
@@ -58,12 +52,12 @@ const SaveAsTemplateDialog: React.FC<{
       });
       const flowTemplate = await templatesApi.create({
         description: data.description,
-        type: TemplateType.PLATFORM,
+        type: TemplateType.PROJECT,
         tags: data.tags || [],
         blogUrl: template.blogUrl || '',
         template: {
           ...flowVersion,
-          displayName: data.name,
+          displayName: data.name
         },
       });
       return flowTemplate;

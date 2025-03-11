@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import {
+  GlobalOAuthApp,
   ListOAuth2AppRequest,
   OAuthApp,
   UpsertOAuth2AppRequest,
@@ -18,7 +19,7 @@ export const oauthAppsApi = {
     );
   },
   listGlobalOAuthAppsCredentials(request: ListOAuth2AppRequest) {
-    return api.get<SeekPage<OAuthApp>>('/v1/global-oauth-apps', request);
+    return api.get<SeekPage<GlobalOAuthApp>>('/v1/global-oauth-apps', request);
   },
   listOAuthAppsCredentials(request: ListOAuth2AppRequest) {
     return api.get<SeekPage<OAuthApp>>('/v1/oauth-apps', request);

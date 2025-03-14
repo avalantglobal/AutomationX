@@ -35,25 +35,40 @@ export const oauth2AppsHooks = {
     return useQuery<PieceToClientIdMap, Error>({
       queryKey: ['oauth-apps'],
       queryFn: async () => {
-        const apps =
-          edition === ApEdition.COMMUNITY
-            ? {
-                data: [],
-              }
-            : await oauthAppsApi.listOAuthAppsCredentials({
-                limit: 1000000,
-                cursor: undefined,
-              });
-        const cloudApps = !cloudAuthEnabled
-          ? {}
-          : await oauthAppsApi.listCloudOAuthApps(edition);
+        // const apps =
+        //   edition === ApEdition.COMMUNITY
+        //     ? {
+        //         data: [],
+        //       }
+        //     : await oauthAppsApi.listOAuthAppsCredentials({
+        //         limit: 1000000,
+        //         cursor: undefined,
+        //       });
+        // const cloudApps = !cloudAuthEnabled
+        //   ? {}
+        //   : await oauthAppsApi.listCloudOAuthApps(edition);
+
+        // Todo (Rupal): Ideally, we should use cloud auth but this our credentials, however platform auth works for us
+        // as the database does not store platform IDs
+        const apps = await oauthAppsApi.listOAuthAppsCredentials({ limit: 10000, cursor: undefined});
+        const cloudApps = await oauthAppsApi.listGlobalOAuthAppsCredentials({ limit: 10000, cursor: undefined});
+
         const appsMap: PieceToClientIdMap = {};
-        Object.keys(cloudApps).forEach((key) => {
-          appsMap[key] = {
-            type: AppConnectionType.CLOUD_OAUTH2,
-            clientId: cloudApps[key].clientId,
-          };
+        // Object.keys(cloudApps).forEach((key) => {
+        //   appsMap[key] = {
+        //     type: AppConnectionType.CLOUD_OAUTH2,
+        //     clientId: cloudApps[key].clientId,
+        //   };
+        // });
+        cloudApps.data.forEach((app) => {
+          Object.keys(cloudApps).forEach((key) => {
+            appsMap[app.pieceName] = {
+              type: AppConnectionType.CLOUD_OAUTH2,
+              clientId: app.clientId,
+            };
+          });
         });
+
         apps.data.forEach((app) => {
           appsMap[app.pieceName] = {
             type: AppConnectionType.PLATFORM_OAUTH2,

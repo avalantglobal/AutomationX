@@ -55,6 +55,8 @@ import { WorkerMachineEntity } from '../workers/machine/machine-entity'
 import { createPostgresDataSource } from './postgres-connection'
 import { createSqlLiteDataSource } from './sqlite-connection'
 import { FlowTemplateEntity } from '../flow-templates/flow-template.entity'
+import { OAuthAppEntity } from '../oauth-apps/oauth-app.entity'
+import { GlobalOAuthAppEntity } from '../oauth-apps/global-oauth-app.entity'
 
 const databaseType = system.get(AppSystemProp.DB_TYPE)
 
@@ -92,6 +94,8 @@ function getEntities(): EntitySchema<unknown>[] {
         CellEntity,
         TableWebhookEntity,
         UserIdentityEntity,
+        OAuthAppEntity,
+        GlobalOAuthAppEntity,
     ]
 
     switch (edition) {
@@ -177,4 +181,4 @@ export function APArrayContains<T>(
 }
 
 // Uncomment the below line when running `nx db-migration server-api name=<MIGRATION_NAME>` and recomment it after the migration is generated
-// export const exportedConnection = databaseConnection()
+export const exportedConnection = databaseConnection()

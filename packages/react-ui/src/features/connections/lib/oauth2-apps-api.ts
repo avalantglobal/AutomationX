@@ -3,7 +3,7 @@ import {
   ListOAuth2AppRequest,
   OAuthApp,
   UpsertOAuth2AppRequest,
-} from '@activepieces/ee-shared';
+} from '@activepieces/shared';
 import { ApEdition, SeekPage } from '@activepieces/shared';
 
 export const oauthAppsApi = {
@@ -17,6 +17,9 @@ export const oauthAppsApi = {
       },
     );
   },
+  listGlobalOAuthAppsCredentials(request: ListOAuth2AppRequest) {
+    return api.get<SeekPage<OAuthApp>>('/v1/global-oauth-apps', request);
+  },
   listOAuthAppsCredentials(request: ListOAuth2AppRequest) {
     return api.get<SeekPage<OAuthApp>>('/v1/oauth-apps', request);
   },
@@ -25,8 +28,5 @@ export const oauthAppsApi = {
   },
   upsert(request: UpsertOAuth2AppRequest) {
     return api.post<OAuthApp>('/v1/oauth-apps', request);
-  },
-  listWfApps(requestStr: string) {
-    return api.get<SeekPage<OAuthApp>>('/v1/templates/wf-apps'+requestStr);
   },
 };

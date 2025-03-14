@@ -94,6 +94,10 @@ import { flowConsumer } from './workers/consumer'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 import { workerModule } from './workers/worker-module'
 import { flowTemplateModule } from './flow-templates/flow-template.module'
+import { globalOAuthAppModule } from './oauth-apps/global-oauth-app.module'
+import { oauthAppModule } from './oauth-apps/oauth-app.module'
+import { setPlatformOAuthService } from './app-connection/app-connection-service/oauth2'
+import { userOAuth2Service } from './app-connection/app-connection-service/oauth2/services/user-oauth2-service'
 
 
 export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> => {
@@ -232,6 +236,9 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     await app.register(tablesModule)
     await app.register(userModule)
     await app.register(flowTemplateModule)
+    await app.register(globalOAuthAppModule)
+    await app.register(oauthAppModule)
+    setPlatformOAuthService(userOAuth2Service(app.log))
 
     app.get(
         '/redirect',

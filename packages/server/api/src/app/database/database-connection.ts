@@ -54,6 +54,7 @@ import { WebhookSimulationEntity } from '../webhooks/webhook-simulation/webhook-
 import { WorkerMachineEntity } from '../workers/machine/machine-entity'
 import { createPostgresDataSource } from './postgres-connection'
 import { createSqlLiteDataSource } from './sqlite-connection'
+import { FlowTemplateEntity } from '../flow-templates/flow-template.entity'
 
 const databaseType = system.get(AppSystemProp.DB_TYPE)
 
@@ -68,6 +69,7 @@ function getEntities(): EntitySchema<unknown>[] {
         FlowEntity,
         FlowVersionEntity,
         FlowRunEntity,
+        FlowTemplateEntity,
         ProjectEntity,
         StoreEntryEntity,
         UserEntity,

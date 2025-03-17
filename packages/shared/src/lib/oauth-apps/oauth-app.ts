@@ -10,7 +10,7 @@ export const OAuthApp = Type.Object({
 
 export type OAuthApp = Static<typeof OAuthApp>
 
-export const OAuthAppWithSecret = Type.Composite([OAuthApp, Type.Object({clientSecret: Type.String()})])
+export const OAuthAppWithSecret = Type.Composite([OAuthApp, Type.Object({ clientSecret: Type.String() })])
 
 export type OAuthAppWithSecret = Static<typeof OAuthAppWithSecret>
 

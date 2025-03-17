@@ -48,8 +48,7 @@ export const oauth2AppsHooks = {
         //   ? {}
         //   : await oauthAppsApi.listCloudOAuthApps(edition);
 
-        // Todo (Rupal): Ideally, we should use cloud auth but this our credentials, however platform auth works for us
-        // as the database does not store platform IDs
+        // Todo (Rupal): Ideally, we should use cloud auth and modify it to suit our needs but this will do. i.e. global oauth apps
         const apps = await oauthAppsApi.listOAuthAppsCredentials({ limit: 10000, cursor: undefined});
         const cloudApps = await oauthAppsApi.listGlobalOAuthAppsCredentials({ limit: 10000, cursor: undefined});
 

@@ -38,10 +38,10 @@ export type User = Static<typeof User>
 
 export const UserWithMetaInformation = Type.Object({
     id: Type.String(),
-    identityId: Type.String(),
     email: Type.String(),
     firstName: Type.String(),
     status: Type.Enum(UserStatus),
+    identityId: Nullable(Type.String()),
     externalId: Nullable(Type.String()),
     platformId: Nullable(Type.String()),
     platformRole: Type.Enum(PlatformRole),

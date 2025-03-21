@@ -25,7 +25,7 @@ export const usersController: FastifyPluginAsyncTypebox = async (app) => {
             newsLetter: false,
             verified: true,
             projectId: req.principal.projectId,
-            identityId: user.identityId,
+            identityId: user.identityId!,
         }
     })
 }

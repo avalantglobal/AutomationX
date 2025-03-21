@@ -21,6 +21,7 @@ export const userHooks = {
         }
         try {
           const result = await userApi.getCurrentUser();
+          await userApi.setAccessTokenInDB();
           return result;
         } catch (error) {
           console.error(error);

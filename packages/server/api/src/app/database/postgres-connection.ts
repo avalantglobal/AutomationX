@@ -11,6 +11,8 @@ import { AddTables1741862762328 } from './migration/postgres/1741862762328-add-t
 import { AddFlowTemplate1741587483735 } from './migration/postgres/1741587483735-add-flow-template'
 import { AddOauthApp1741683756436 } from './migration/postgres/1741683756436-add-oauth-app'
 import { AddGlobalOauthApp1741684926338 } from './migration/postgres/1741684926338-add-global-oauth-app'
+import { InitialMsProjectConfig1742454177000 } from './migration/sqlite/1742454177000-initial-ms-project-config'
+import { AddProjectAccessToken1742454177101 } from './migration/postgres/1742454177101-add-project-access-token'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(AppSystemProp.POSTGRES_USE_SSL)
@@ -31,6 +33,8 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
       SwitchToRouter1741578250432,
       AddPgLocaleCollation1740031341436,
       InitialPg1740031656104,
+      InitialMsProjectConfig1742454177000,
+      AddProjectAccessToken1742454177101
     ]
 
     const edition = system.getEdition()

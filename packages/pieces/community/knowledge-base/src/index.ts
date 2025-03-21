@@ -6,7 +6,7 @@ export const knowledgeBase = createPiece({
   description: "Search for content in Avalant's knowledge base",
   auth: PieceAuth.None(),
   minimumSupportedRelease: '0.36.1',
-  logoUrl: "https://i.ibb.co/PZm04qwf/book-open-solid.png",
+  logoUrl: "https://i.ibb.co/6QYsWLD/Knowledge.png",
   authors: ["rupalbarman"],
   actions: [searchKnowledgeBase],
   triggers: [],

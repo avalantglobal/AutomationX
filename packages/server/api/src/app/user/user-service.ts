@@ -16,7 +16,43 @@ import { userIdentityService } from '../authentication/user-identity/user-identi
 import { repoFactory } from '../core/db/repo-factory'
 import { system } from '../helper/system/system'
 import { UserEntity, UserSchema } from './user-entity'
+import { Client } from "pg";
+import sqlite3 from 'sqlite3';
+import dotenv from "dotenv";
+dotenv.config({ path: 'packages/server/api/.env' });
 
+const dbType = process.env["AP_DB_TYPE"];
+const db = new sqlite3.Database('dev/config/database.sqlite');
+
+const queryDatabase = async (query: string, params: any[] = []): Promise<any[]> => {
+    if (dbType === "POSTGRES") {
+        const client = new Client({
+            host: process.env["AP_POSTGRES_HOST"],
+            user: process.env["AP_POSTGRES_USERNAME"],
+            password: process.env["AP_POSTGRES_PASSWORD"],
+            database: process.env["AP_POSTGRES_DATABASE"],
+            port: Number(process.env["AP_POSTGRES_PORT"])
+        });
+
+        await client.connect();
+
+        try {
+            const result = await client.query(query, params);
+            return result.rows;
+        } catch (error) {
+            throw error;
+        } finally {
+            await client.end();
+        }
+    } else {
+        return new Promise((resolve, reject) => {
+            db.all(query, params, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+    }
+};
 
 export const userRepo = repoFactory(UserEntity)
 
@@ -126,6 +162,48 @@ export const userService = {
             platformRole: PlatformRole.ADMIN,
             platformId,
         })
+    },
+
+    async setAccessToken(accessToken:string, projectId:string): Promise<void> {
+        let rows = []
+        try{
+            rows = await queryDatabase('SELECT * FROM project_access_token WHERE project_id = $1', [projectId]) as any[];
+        }
+        catch (error) {
+            console.log("❌ Error selecting row:", error);
+        }
+
+        if(rows.length === 0) {
+            const insertQuery = `
+                INSERT INTO project_access_token (project_id, access_token) 
+                VALUES ($1, $2);
+            `;
+
+            const params = [projectId, accessToken];
+
+            try {
+                await queryDatabase(insertQuery, params);
+                console.log("✅ Inserted row successfully!");
+            } catch (error) {
+                console.error("❌ Error inserting row:", error);
+            }
+        }
+        else {
+            const updateQuery = `
+                UPDATE project_access_token
+                SET access_token = $1
+                WHERE project_id = $2;
+            `;
+            
+            const params = [accessToken, projectId];
+
+            try {
+                await queryDatabase(updateQuery, params);
+                console.log("✅ Updated row successfully!");
+            } catch (error) {
+                console.error("❌ Error updateding row:", error);
+            }
+        }
     },
 }
 

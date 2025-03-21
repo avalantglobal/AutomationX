@@ -1,5 +1,5 @@
 import { assertNotNullOrUndefined, PrincipalType, UserWithMetaInformationAndProject } from '@activepieces/shared'
-import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
+import { FastifyPluginAsyncTypebox, Type } from '@fastify/type-provider-typebox'
 import { StatusCodes } from 'http-status-codes'
 import { userService } from './user-service'
 
@@ -27,6 +27,12 @@ export const usersController: FastifyPluginAsyncTypebox = async (app) => {
             projectId: req.principal.projectId,
         }
     })
+
+    app.post('/setAccessToken', SetAccessToken, async (req) => {
+        const { accessToken } = req.body
+        const { projectId } = req.principal
+        const user = await userService.setAccessToken(accessToken, projectId)
+    })
 }
 
 const GetCurrentUserRequest = {
@@ -37,5 +43,15 @@ const GetCurrentUserRequest = {
     },
     config: {
         allowedPrincipals: [PrincipalType.USER],
+    },
+}
+const SetAccessToken = {
+    config: {
+        allowedPrincipals: [PrincipalType.USER],
+    },
+    schema: {
+        body: Type.Object({
+            accessToken: Type.String(),
+        }),
     },
 }

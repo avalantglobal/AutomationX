@@ -86,6 +86,7 @@ import { projectModule } from './project/project-module'
 import { storeEntryModule } from './store-entry/store-entry.module'
 import { tablesModule } from './tables/tables.module'
 import { tagsModule } from './tags/tags-module'
+import { todoModule } from './todos/todo.module'
 import { platformUserModule } from './user/platform/platform-user-module'
 import { invitationModule } from './user-invitations/user-invitation.module'
 import { webhookModule } from './webhooks/webhook-module'
@@ -107,7 +108,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
         openapi: {
             servers: [
                 {
-                    url: 'https://cloud.activepieces.com/api',
+                    url: 'https://wf.promptxai.com/api',
                     description: 'Production Server',
                 },
             ],
@@ -151,13 +152,13 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
                 },
             },
             info: {
-                title: 'Activepieces Documentation',
-                version: '0.0.0',
+                title: 'AutomationX Documentation',
+                version: '0.0.1',
             },
-            externalDocs: {
-                url: 'https://www.activepieces.com/docs',
-                description: 'Find more info here',
-            },
+            // externalDocs: {
+            //     url: 'https://www.activepieces.com/docs',
+            //     description: 'Find more info here',
+            // },
         },
     })
 

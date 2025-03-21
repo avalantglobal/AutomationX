@@ -38,6 +38,7 @@ export type User = Static<typeof User>
 
 export const UserWithMetaInformation = Type.Object({
     id: Type.String(),
+    identityId: Type.String(),
     email: Type.String(),
     firstName: Type.String(),
     status: Type.Enum(UserStatus),
@@ -54,6 +55,7 @@ export type UserWithMetaInformation = Static<typeof UserWithMetaInformation>
 export const UserWithMetaInformationAndProject = Type.Object({
     id: Type.String(),
     email: Type.String(),
+    identityId: Type.String(),
     firstName: Type.String(),
     status: Type.Enum(UserStatus),
     externalId: Nullable(Type.String()),
@@ -66,7 +68,6 @@ export const UserWithMetaInformationAndProject = Type.Object({
     trackEvents: Type.Boolean(),
     newsLetter: Type.Boolean(),
     verified: Type.Boolean(),
-    identityId:Nullable(Type.String()),
 })
 
 export type UserWithMetaInformationAndProject = Static<typeof UserWithMetaInformationAndProject>

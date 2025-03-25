@@ -49,6 +49,7 @@ import { platformHooks } from '../../hooks/platform-hooks';
 
 import { Header } from './header';
 import { FloatingChatButton } from '@/components/custom/FloatingChatButton';
+import { useTheme } from '@/components/theme-provider';
 
 // import UsageLimitsButton from './usage-limits-button';
 
@@ -167,13 +168,18 @@ export function SidebarComponent({
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
   const { embedState } = useEmbedding();
   const { platform } = platformHooks.useCurrentPlatform();
+  const { theme } = useTheme();
   const defaultRoute = determineDefaultRoute(useAuthorization().checkAccess);
   const location = useLocation();
   return (
     <div className="flex min-h-screen w-full">
       <div className="flex min-h-screen w-full">
         {!hideSideNav && (
-          <Sidebar className="w-[255px]">
+          <Sidebar
+            className={`w-[255px]
+                ${theme === 'dark' ? 'bg-black' : 'bg-white'}
+            `}
+          >
             <SidebarContent>
               <SidebarHeader className="pt-4 pb-0">
                 <div className="flex items-center justify-center">
@@ -291,7 +297,7 @@ export function SidebarComponent({
                           </SidebarMenuItem>
                         </SidebarMenu>
                       </SidebarGroup>
-                    ),
+                    )
                   )}
                 </ScrollArea>
               </SidebarContent>
@@ -342,6 +348,7 @@ export function SidebarComponent({
             </SidebarContent>
           </Sidebar>
         )}
+
         <div
           className={cn('flex-1 p-4', {
             'py-0': hideHeader,

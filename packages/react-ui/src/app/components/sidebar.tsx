@@ -171,6 +171,7 @@ export function SidebarComponent({
   const { theme } = useTheme();
   const defaultRoute = determineDefaultRoute(useAuthorization().checkAccess);
   const location = useLocation();
+
   return (
     <div className="flex min-h-screen w-full">
       <div className="flex min-h-screen w-full">

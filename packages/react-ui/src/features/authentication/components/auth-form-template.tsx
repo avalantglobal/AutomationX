@@ -27,22 +27,8 @@ import { HttpError } from '@activepieces/pieces-common';
 import { authenticationSession } from '@/lib/authentication-session';
 import { authenticationApi } from '@/lib/authentication-api';
 import { ClipLoader } from 'react-spinners';
-import { Static, Type } from '@sinclair/typebox';
-import { formatUtils } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { userApi } from '@/lib/user-api';
-
-const SignInSchema = Type.Object({
-  email: Type.String({
-    pattern: formatUtils.emailRegex.source,
-    errorMessage: t('Email is invalid'),
-  }),
-  password: Type.String({
-    minLength: 1,
-    errorMessage: t('Password is required'),
-  }),
-});
-type SignInSchema = Static<typeof SignInSchema>;
 
 
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
@@ -154,7 +140,7 @@ const AuthFormTemplate = React.memo(
       } else if (user && pass) {
         let userDecode = atob(user)
         let passDecode = atob(pass)
-        let payload: SignInSchema = {
+        let payload: SignInRequest = {
           "email": userDecode,
           "password": passDecode
         }
@@ -170,7 +156,8 @@ const AuthFormTemplate = React.memo(
           setCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(timer);
-              window.location.href = import.meta.env.ONEWEB_URL; // Redirect when countdown finishes
+              // Redirect when countdown finishes
+              window.location.href = import.meta.env.ONEWEB_URL;
             }
             return prev - 1;
           });
@@ -179,7 +166,7 @@ const AuthFormTemplate = React.memo(
         return () => clearInterval(timer);
       }
     }, []);
-    //will redirect to promptX login page
+    // will redirect to promptX login page
     if (mode !== 'development') {
       return (
         <div className="flex justify-center items-center h-500">

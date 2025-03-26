@@ -1,6 +1,24 @@
+import { HttpError } from '@activepieces/pieces-common';
+import {
+  ApFlagId,
+  AuthenticationResponse,
+  SignInRequest,
+  ThirdPartyAuthnProvidersToShowMap,
+} from '@activepieces/shared';
+import { Static, Type } from '@sinclair/typebox';
+import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
+import qs from 'qs';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
+
+import { HorizontalSeparatorWithText } from '../../../components/ui/separator';
+import { flagsHooks } from '../../../hooks/flags-hooks';
+
+import { SignInForm } from './sign-in-form';
+// import { SignUpForm } from './sign-up-form';
+import { ThirdPartyLogin } from './third-party-logins';
 
 import {
   Card,
@@ -9,28 +27,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  ApFlagId,
-  AuthenticationResponse,
-  SignInRequest,
-  ThirdPartyAuthnProvidersToShowMap,
-} from '@activepieces/shared';
-
-import { HorizontalSeparatorWithText } from '../../../components/ui/separator';
-import { flagsHooks } from '../../../hooks/flags-hooks';
-
-import { SignInForm } from './sign-in-form';
-// import { SignUpForm } from './sign-up-form';
-import { ThirdPartyLogin } from './third-party-logins';
-import { useMutation } from '@tanstack/react-query';
-import { HttpError } from '@activepieces/pieces-common';
-import { authenticationSession } from '@/lib/authentication-session';
-import { authenticationApi } from '@/lib/authentication-api';
-import { ClipLoader } from 'react-spinners';
-import { Static, Type } from '@sinclair/typebox';
-import { formatUtils } from '@/lib/utils';
 import { api } from '@/lib/api';
+import { authenticationApi } from '@/lib/authentication-api';
+import { authenticationSession } from '@/lib/authentication-session';
 import { userApi } from '@/lib/user-api';
+import { formatUtils } from '@/lib/utils';
 
 const SignInSchema = Type.Object({
   email: Type.String({
@@ -43,7 +44,6 @@ const SignInSchema = Type.Object({
   }),
 });
 type SignInSchema = Static<typeof SignInSchema>;
-
 
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
   return isSignup ? (
@@ -76,7 +76,7 @@ const AuthSeparator = ({
 }) => {
   const { data: thirdPartyAuthProviders } =
     flagsHooks.useFlag<ThirdPartyAuthnProvidersToShowMap>(
-      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP,
+      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP
     );
 
   return (thirdPartyAuthProviders?.google || thirdPartyAuthProviders?.saml) &&
@@ -92,9 +92,9 @@ const AuthFormTemplate = React.memo(
     const isSignUp = form === 'signup';
 
     const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
-    let [isloading, setIsloading] = useState<boolean>(true);
+    const [isloading, setIsloading] = useState<boolean>(true);
     const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
-      ApFlagId.EMAIL_AUTH_ENABLED,
+      ApFlagId.EMAIL_AUTH_ENABLED
     );
     const data = {
       signin: {
@@ -109,8 +109,10 @@ const AuthFormTemplate = React.memo(
       },
     }[form];
 
-
     const navigate = useNavigate();
+
+    const [countdown, setCountdown] = useState(3);
+    const mode = import.meta.env.MODE;
 
     const { mutate, isPending } = useMutation<
       AuthenticationResponse,
@@ -131,15 +133,15 @@ const AuthFormTemplate = React.memo(
     });
 
     const loginByToken = async (token: any) => {
-      localStorage.setItem("token", token)
+      localStorage.setItem('token', token);
       try {
         const result = await userApi.getCurrentUser();
-        localStorage.setItem("currentUser", JSON.stringify(result))
+        localStorage.setItem('currentUser', JSON.stringify(result));
         navigate('/flows');
       } catch (e) {
         navigate('/sign-in');
       }
-    }
+    };
 
     useEffect(() => {
       const params = new URLSearchParams(location.search);
@@ -147,20 +149,45 @@ const AuthFormTemplate = React.memo(
       const pass = params.get('p');
       const token = params.get('t');
       if (token) {
-        loginByToken(token)
+        loginByToken(token);
       } else if (user && pass) {
-        let userDecode = atob(user)
-        let passDecode = atob(pass)
-        let payload: SignInSchema = {
-          "email": userDecode,
-          "password": passDecode
-        }
+        const userDecode = atob(user);
+        const passDecode = atob(pass);
+        const payload: SignInSchema = {
+          email: userDecode,
+          password: passDecode,
+        };
         mutate(payload);
       } else {
-        setIsloading(false)
+        setIsloading(false);
       }
-    }, [])
-
+    }, []);
+    useEffect(() => {
+      if (mode !== 'development') {
+        const timer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              window.location.href = import.meta.env.ONEWEB_URL; // Redirect when countdown finishes
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        // Cleanup interval on component unmount
+        return () => clearInterval(timer);
+      }
+    }, []);
+    //will redirect to promptX login page
+    if (mode !== 'development') {
+      return (
+        <div className="flex justify-center items-center h-500">
+          <p className="text-lg font-semibold text-gray-700 mb-4">
+            {t(`Logins are allowed only through CenterApp, Redirecting you in ${countdown}
+            seconds...`)}
+          </p>
+        </div>
+      );
+    }
     if (isloading) {
       return (
         <div className="flex justify-center items-center h-full">
@@ -201,7 +228,7 @@ const AuthFormTemplate = React.memo(
         <BottomNote isSignup={isSignUp}></BottomNote>
       </Card>
     );
-  },
+  }
 );
 
 AuthFormTemplate.displayName = 'AuthFormTemplate';

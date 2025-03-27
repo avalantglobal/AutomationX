@@ -12,6 +12,7 @@ import {
 import {
   ApFlagId,
   AuthenticationResponse,
+  isNil,
   SignInRequest,
   ThirdPartyAuthnProvidersToShowMap,
 } from '@activepieces/shared';
@@ -82,6 +83,8 @@ const AuthFormTemplate = React.memo(
     const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
       ApFlagId.EMAIL_AUTH_ENABLED,
     );
+    const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
+    const { data: environment } = flagsHooks.useFlag<string>(ApFlagId.ENVIRONMENT);
     const data = {
       signin: {
         title: t('Welcome Back!'),
@@ -151,13 +154,14 @@ const AuthFormTemplate = React.memo(
     }, [])
 
     useEffect(() => {
-      if (mode !== 'development') {
+      // For non-dev environments, we'd like to login via external screen
+      if (environment !== 'dev' && !isNil(loginUrl)) {
         const timer = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(timer);
               // Redirect when countdown finishes
-              window.location.href = import.meta.env.ONEWEB_URL;
+              window.location.href = loginUrl;
             }
             return prev - 1;
           });
@@ -167,7 +171,7 @@ const AuthFormTemplate = React.memo(
       }
     }, []);
     // will redirect to promptX login page
-    if (mode !== 'development') {
+    if (environment !== 'dev') {
       return (
         <div className="flex justify-center items-center h-500">
           <p className="text-lg font-semibold text-gray-700 mb-4">

@@ -31,7 +31,6 @@ import { ClipLoader } from 'react-spinners';
 import { api } from '@/lib/api';
 import { userApi } from '@/lib/user-api';
 
-
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
   return isSignup ? (
     <div className="my-4 text-center text-sm">
@@ -63,7 +62,7 @@ const AuthSeparator = ({
 }) => {
   const { data: thirdPartyAuthProviders } =
     flagsHooks.useFlag<ThirdPartyAuthnProvidersToShowMap>(
-      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP,
+      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP
     );
 
   return (thirdPartyAuthProviders?.google || thirdPartyAuthProviders?.saml) &&
@@ -81,10 +80,12 @@ const AuthFormTemplate = React.memo(
     const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
     let [isloading, setIsloading] = useState<boolean>(true);
     const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
-      ApFlagId.EMAIL_AUTH_ENABLED,
+      ApFlagId.EMAIL_AUTH_ENABLED
     );
     const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
-    const { data: environment } = flagsHooks.useFlag<string>(ApFlagId.ENVIRONMENT);
+    const { data: environment } = flagsHooks.useFlag<string>(
+      ApFlagId.ENVIRONMENT
+    );
     const data = {
       signin: {
         title: t('Welcome Back!'),
@@ -97,7 +98,6 @@ const AuthFormTemplate = React.memo(
         showNameFields: true,
       },
     }[form];
-
 
     const navigate = useNavigate();
 
@@ -123,15 +123,15 @@ const AuthFormTemplate = React.memo(
     });
 
     const loginByToken = async (token: any) => {
-      localStorage.setItem("token", token)
+      localStorage.setItem('token', token);
       try {
         const result = await userApi.getCurrentUser();
-        localStorage.setItem("currentUser", JSON.stringify(result))
+        localStorage.setItem('currentUser', JSON.stringify(result));
         navigate('/flows');
       } catch (e) {
         navigate('/sign-in');
       }
-    }
+    };
 
     useEffect(() => {
       const params = new URLSearchParams(location.search);
@@ -139,19 +139,19 @@ const AuthFormTemplate = React.memo(
       const pass = params.get('p');
       const token = params.get('t');
       if (token) {
-        loginByToken(token)
+        loginByToken(token);
       } else if (user && pass) {
-        let userDecode = atob(user)
-        let passDecode = atob(pass)
+        let userDecode = atob(user);
+        let passDecode = atob(pass);
         let payload: SignInRequest = {
-          "email": userDecode,
-          "password": passDecode
-        }
+          email: userDecode,
+          password: passDecode,
+        };
         mutate(payload);
       } else {
-        setIsloading(false)
+        setIsloading(false);
       }
-    }, [])
+    }, []);
 
     useEffect(() => {
       // For non-dev environments, we'd like to login via external screen
@@ -221,7 +221,7 @@ const AuthFormTemplate = React.memo(
         <BottomNote isSignup={isSignUp}></BottomNote>
       </Card>
     );
-  },
+  }
 );
 
 AuthFormTemplate.displayName = 'AuthFormTemplate';

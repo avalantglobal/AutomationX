@@ -120,9 +120,6 @@ export enum AppSystemProp {
     CLOUDFLARE_ZONE_ID = 'CLOUDFLARE_ZONE_ID',
     // Secret Manager
     SECRET_MANAGER_API_KEY = 'SECRET_MANAGER_API_KEY',
-
-    // Custom
-    ONEWEB_URL = 'ONEWEB_URL',
 }
 export enum PiecesSource {
     /**

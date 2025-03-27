@@ -102,7 +102,6 @@ const AuthFormTemplate = React.memo(
     const navigate = useNavigate();
 
     const [countdown, setCountdown] = useState(3);
-    const mode = import.meta.env.MODE;
 
     const { mutate, isPending } = useMutation<
       AuthenticationResponse,

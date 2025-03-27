@@ -78,7 +78,7 @@ const AuthFormTemplate = React.memo(
     const isSignUp = form === 'signup';
 
     const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
-    let [isloading, setIsloading] = useState<boolean>(true);
+    let [isLoading, setIsLoading] = useState<boolean>(true);
     const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
       ApFlagId.EMAIL_AUTH_ENABLED
     );
@@ -149,7 +149,7 @@ const AuthFormTemplate = React.memo(
         };
         mutate(payload);
       } else {
-        setIsloading(false);
+        setIsLoading(false);
       }
     }, []);
 
@@ -181,7 +181,7 @@ const AuthFormTemplate = React.memo(
         </div>
       );
     }
-    if (isloading) {
+    if (isLoading) {
       return (
         <div className="flex justify-center items-center h-full">
           <ClipLoader color="#a9a9a9" />

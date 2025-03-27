@@ -138,11 +138,16 @@ const SelectFlowTemplateDialog = ({
   const { data: templates, isLoading } = useQuery<FlowTemplate[], Error>({
     queryKey: ['templates', activeTab],
     queryFn: async () => {
-      const templates =
-        activeTab === 'MY_TEMPLATE'
-          ? await templatesApi.list()
-          : await templatesApi.listCommunity();
-      return templates.data;
+      if (activeTab === 'MY_TEMPLATE') {
+        return (await templatesApi.list()).data;
+      }
+      
+      const [communityTemplates, cloudTemplates] = await Promise.all([
+        templatesApi.listCommunity(),
+        templatesApi.listCloud(),
+      ]);
+      
+      return [ ...communityTemplates.data, ...cloudTemplates.data ];
     },
     staleTime: 0,
   });

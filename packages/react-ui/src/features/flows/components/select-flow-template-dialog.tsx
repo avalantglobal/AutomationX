@@ -142,12 +142,15 @@ const SelectFlowTemplateDialog = ({
         return (await templatesApi.list()).data;
       }
       
-      const [communityTemplates, cloudTemplates] = await Promise.all([
+      const results = await Promise.allSettled([
         templatesApi.listCommunity(),
         templatesApi.listCloud(),
       ]);
-      
-      return [ ...communityTemplates.data, ...cloudTemplates.data ];
+  
+      const communityTemplates = results[0].status === 'fulfilled' ? results[0].value.data : [];
+      const cloudTemplates = results[1].status === 'fulfilled' ? results[1].value.data : [];
+  
+      return [ ...communityTemplates, ...cloudTemplates ];
     },
     staleTime: 0,
   });

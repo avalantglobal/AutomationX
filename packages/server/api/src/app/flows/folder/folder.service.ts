@@ -52,7 +52,14 @@ export const flowFolderService = (log: FastifyBaseLogger) => ({
             projectId,
             displayName: request.displayName,
         })
+        
         if (!isNil(folderWithDisplayName)) {
+            if (request.displayName === folderWithDisplayName?.displayName) {
+                throw new ActivepiecesError({
+                    code: ErrorCode.VALIDATION,
+                    params: { message: 'Folder displayName is used' },
+                })
+            }
             return this.update({
                 projectId,
                 folderId: folderWithDisplayName.id,

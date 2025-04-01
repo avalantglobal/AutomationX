@@ -1,7 +1,10 @@
 // import { ApplicationEventName } from '@activepieces/ee-shared'
 import {
+    ActivepiecesError,
     CreateFolderRequest,
     DeleteFolderRequest,
+    ErrorCode,
+    isNil,
     ListFolderRequest,
     Permission,
     PrincipalType,
@@ -23,6 +26,16 @@ export const folderModule: FastifyPluginAsyncTypebox = async (app) => {
 const folderController: FastifyPluginAsyncTypebox = async (fastify) => {
     fastify.addHook('preSerialization', entitiesMustBeOwnedByCurrentProject)
     fastify.post('/', CreateFolderParams, async (request) => {
+        const folderWithDisplayName = await folderService(request.log).getOneByDisplayNameCaseInsensitive({
+            projectId: request.principal.projectId, 
+            displayName: request.body.displayName
+        });
+        if (!isNil(folderWithDisplayName)) {
+            throw new ActivepiecesError({
+                code: ErrorCode.VALIDATION,
+                params: { message: 'Folder displayName is used' },
+            })
+        }
         const createdFolder = await folderService(request.log).upsert({
             projectId: request.principal.projectId,
             request: request.body,

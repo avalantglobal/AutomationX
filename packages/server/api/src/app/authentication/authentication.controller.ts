@@ -75,7 +75,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (
         const jwt = request.body.token
         const expiresIn = dayjs.duration(7, 'day').asSeconds()
         // Note that the key expiry is set as same as JWT expiry (7 days)
-        await distributedStore().put(`revoked:${jwt}`, jwt, expiresIn)
+        await distributedStore().put(`revoked:${jwt}`, 1, expiresIn)
     })
 
     app.post('/switch-platform', SwitchPlatformRequestOptions, async (request) => {

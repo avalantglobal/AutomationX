@@ -31,6 +31,10 @@
       }
     </style>
     <script>
+      window.addEventListener('unload', function () {
+        console.log('=== unload to clear localStorage ===');
+        localStorage.clear(); // Clears all localStorage data
+      });
       document.addEventListener('DOMContentLoaded', function (event) {
         window.onmessage = function (e) {
           try {

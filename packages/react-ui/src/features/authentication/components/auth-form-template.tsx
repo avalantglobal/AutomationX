@@ -111,6 +111,75 @@ const AuthFormTemplate = React.memo(
 
     const [countdown, setCountdown] = useState(3);
 
+    const { mutate, isPending } = useMutation<
+      AuthenticationResponse,
+      HttpError,
+      SignInRequest
+    >({
+      mutationFn: authenticationApi.signIn,
+      onSuccess: (payload: any) => {
+        authenticationSession.saveResponse(payload);
+        let flowId = payload?.flowId;
+        if (flowId) {
+          navigate(`/flows/${flowId}`);
+        }
+        else {
+          navigate('/flows');
+        }
+      },
+      onError: (error) => {
+        if (api.isError(error)) {
+          navigate('/sign-in');
+          return;
+        }
+      },
+    });
+
+    const loginByToken = async (token: any, action: any, templateId: string) => {
+      localStorage.setItem('token', token);
+      try {
+        let request = {
+          action: action,
+          templateId: templateId
+        }
+        const result = await userApi.getCurrentUserAction(request);
+        localStorage.setItem('currentUser', JSON.stringify(result));
+        let flowId = result?.flowId;
+        if (flowId) {
+          navigate(`/flows/${flowId}`);
+        }
+        else {
+          navigate('/flows');
+        }
+      } catch (e) {
+        navigate('/sign-in');
+      }
+    };
+
+    useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const user = params.get('u');
+      const pass = params.get('p');
+      const token = params.get('t');
+      const action = params.get('action') || undefined;
+      const templateId = params.get('templateId') || "";
+      if (token) {
+        loginByToken(token, action, templateId);
+      } else if (user && pass) {
+        let userDecode = atob(user);
+        let passDecode = atob(pass);
+        let payload: SignInRequest = {
+          email: userDecode,
+          password: passDecode,
+          action: action,
+          templateId: templateId,
+        };
+        mutate(payload);
+      } else {
+        setIsLoading(false);
+      }
+    }, []);
+
     useEffect(() => {
       // For non-dev environments, we'd like to login via external screen
       if (environment !== 'dev' && !isNil(loginUrl)) {

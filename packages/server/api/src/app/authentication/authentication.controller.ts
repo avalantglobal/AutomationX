@@ -3,11 +3,15 @@ import { AppSystemProp, networkUtils } from '@activepieces/server-shared'
 import {
     ALL_PRINCIPAL_TYPES,
     assertNotNullOrUndefined,
+    FlowOperationRequest,
+    FlowOperationType,
+    flowStructureUtil,
     SignInRequest,
     SignOutRequest,
     SignUpRequest,
     SwitchPlatformRequest,
     SwitchProjectRequest,
+    Trigger,
     UserIdentityProvider,
 } from '@activepieces/shared'
 import { RateLimitOptions } from '@fastify/rate-limit'
@@ -19,6 +23,7 @@ import { system } from '../helper/system/system'
 import { platformUtils } from '../platform/platform.utils'
 import { userService } from '../user/user-service'
 import { authenticationService } from './authentication.service'
+import { flowService } from '../flows/flow/flow.service'
 
 export const authenticationController: FastifyPluginAsyncTypebox = async (
     app,
@@ -58,6 +63,8 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (
 
         const responsePlatformId = response.platformId
         assertNotNullOrUndefined(responsePlatformId, 'Platform ID is required')
+        const responseUserId = response.id;
+        const responseProjectId = response.projectId;
         // eventsHooks.get(request.log).sendUserEvent({
         //     platformId: responsePlatformId,
         //     userId: response.id,
@@ -68,7 +75,68 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (
         //     data: {},
         // })
 
-        return response
+        let responseReturn: any = response;
+        if (request.body.action == "newFlow") {
+            const requestNewFlow = {
+                projectId: responseProjectId,
+                displayName: "Untitled",
+            }
+            const newFlow: any = await flowService(request.log).create({
+                projectId: responseProjectId,
+                request: requestNewFlow,
+            })
+            responseReturn = {
+                ...responseReturn,
+                flowId: newFlow.id,
+            }
+        }
+        else if (request.body.action == "useTemplate") {
+            const requestNewFlow = {
+                projectId: responseProjectId,
+                displayName: "Untitled",
+            }
+            const newFlow: any = await flowService(request.log).create({
+                projectId: responseProjectId,
+                request: requestNewFlow,
+            })
+
+            let flowTemplate: any = {};
+            let templateId: string = request.body.templateId || '';
+            const responseTemplate = await fetch('https://cloud.activepieces.com/api/v1/flow-templates', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            const responseTemplateJson = await responseTemplate.json()
+            const templates = responseTemplateJson.data;
+            templates.map((template: any) => {
+                if (template.id == templateId) {
+                    flowTemplate = template.template;
+                }
+            })
+
+            let requestUpdataFlow: FlowOperationRequest = {
+                type: FlowOperationType.IMPORT_FLOW,
+                request: {
+                    displayName: flowTemplate.displayName,
+                    trigger: flowTemplate.trigger,
+                }
+            }
+            const updatedFlow = await flowService(request.log).update({
+                id: newFlow.id,
+                userId: responseUserId,
+                platformId: responsePlatformId,
+                projectId: responseProjectId,
+                operation: cleanOperation(requestUpdataFlow),
+            })
+            responseReturn = {
+                ...responseReturn,
+                flowId: newFlow.id,
+            }
+        }
+
+        return responseReturn
     })
 
     app.post('/sign-out', SignOutRequestOptions, async (request) => {
@@ -94,6 +162,46 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (
             currentPlatformId: request.principal.platform.id,
         })
     })
+}
+
+function cleanOperation(operation: FlowOperationRequest): FlowOperationRequest {
+    if (operation.type === FlowOperationType.IMPORT_FLOW) {
+        const clearInputUiInfo = {
+            currentSelectedData: undefined,
+            sampleDataFileId: undefined,
+            sampleDataInputFileId: undefined,
+            lastTestDate: undefined,
+        }
+        const trigger = flowStructureUtil.transferStep(operation.request.trigger, (step) => {
+            return {
+                ...step,
+                settings: {
+                    ...step.settings,
+                    inputUiInfo: {
+                        ...step.settings.inputUiInfo,
+                        ...clearInputUiInfo,
+                    },
+                },
+            }
+        }) as Trigger
+        return {
+            ...operation,
+            request: {
+                ...operation.request,
+                trigger: {
+                    ...trigger,
+                    settings: {
+                        ...trigger.settings,
+                        inputUiInfo: {
+                            ...trigger.settings.inputUiInfo,
+                            ...clearInputUiInfo,
+                        },
+                    },
+                },
+            },
+        }
+    }
+    return operation
 }
 
 const rateLimitOptions: RateLimitOptions = {

@@ -115,9 +115,15 @@ const AuthFormTemplate = React.memo(
       SignInRequest
     >({
       mutationFn: authenticationApi.signIn,
-      onSuccess: (payload) => {
+      onSuccess: (payload: any) => {
         authenticationSession.saveResponse(payload);
-        navigate('/flows');
+        let flowId = payload?.flowId;
+        if (flowId) {
+          navigate(`/flows/${flowId}`);
+        }
+        else {
+          navigate('/flows');
+        }
       },
       onError: (error) => {
         if (api.isError(error)) {
@@ -127,12 +133,22 @@ const AuthFormTemplate = React.memo(
       },
     });
 
-    const loginByToken = async (token: any) => {
+    const loginByToken = async (token: any, action: any, templateId: string) => {
       localStorage.setItem('token', token);
       try {
-        const result = await userApi.getCurrentUser();
+        let request = {
+          action: action,
+          templateId: templateId
+        }
+        const result = await userApi.getCurrentUserAction(request);
         localStorage.setItem('currentUser', JSON.stringify(result));
-        navigate('/flows');
+        let flowId = result?.flowId;
+        if (flowId) {
+          navigate(`/flows/${flowId}`);
+        }
+        else {
+          navigate('/flows');
+        }
       } catch (e) {
         navigate('/sign-in');
       }
@@ -143,14 +159,18 @@ const AuthFormTemplate = React.memo(
       const user = params.get('u');
       const pass = params.get('p');
       const token = params.get('t');
+      const action = params.get('action') || undefined;
+      const templateId = params.get('templateId') || "";
       if (token) {
-        loginByToken(token);
+        loginByToken(token, action, templateId);
       } else if (user && pass) {
         let userDecode = atob(user);
         let passDecode = atob(pass);
         let payload: SignInRequest = {
           email: userDecode,
           password: passDecode,
+          action: action,
+          templateId: templateId,
         };
         mutate(payload);
       } else {

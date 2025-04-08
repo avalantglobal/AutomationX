@@ -1,6 +1,6 @@
 import { t } from 'i18next';
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 
 import {
   Card,
@@ -11,9 +11,7 @@ import {
 } from '@/components/ui/card';
 import {
   ApFlagId,
-  AuthenticationResponse,
   isNil,
-  SignInRequest,
   ThirdPartyAuthnProvidersToShowMap,
 } from '@activepieces/shared';
 
@@ -23,13 +21,7 @@ import { flagsHooks } from '../../../hooks/flags-hooks';
 import { SignInForm } from './sign-in-form';
 // import { SignUpForm } from './sign-up-form';
 import { ThirdPartyLogin } from './third-party-logins';
-import { useMutation } from '@tanstack/react-query';
-import { HttpError } from '@activepieces/pieces-common';
 import { authenticationSession } from '@/lib/authentication-session';
-import { authenticationApi } from '@/lib/authentication-api';
-import { ClipLoader } from 'react-spinners';
-import { api } from '@/lib/api';
-import { userApi } from '@/lib/user-api';
 
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
   const [searchParams] = useSearchParams();
@@ -81,16 +73,18 @@ const AuthFormTemplate = React.memo(
     const isSignUp = form === 'signup';
     const [searchParams] = useSearchParams();
     const from = searchParams.get('from');
+    const tokenFromUrl = searchParams.get('token');
     const token = authenticationSession.getToken();
 
-    const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
-    let [isLoading, setIsLoading] = useState<boolean>(true);
-    const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
-      ApFlagId.EMAIL_AUTH_ENABLED
-    );
+    // To redirect to PromptX login page
     const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
     const { data: environment } = flagsHooks.useFlag<string>(
-      ApFlagId.ENVIRONMENT
+      ApFlagId.ENVIRONMENT,
+    );
+
+    const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
+    const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
+      ApFlagId.EMAIL_AUTH_ENABLED,
     );
     const data = {
       signin: {
@@ -105,9 +99,10 @@ const AuthFormTemplate = React.memo(
       },
     }[form];
 
-    const navigate = useNavigate();
+    if (token && from) {
+      return <Navigate to={from} />;
+    }
 
-    const [countdown, setCountdown] = useState(3);
 
     const { mutate, isPending } = useMutation<
       AuthenticationResponse,
@@ -178,6 +173,14 @@ const AuthFormTemplate = React.memo(
       }
     }, []);
 
+    if (tokenFromUrl) {
+      authenticationSession.saveToken(tokenFromUrl);
+      const navigateTo = isNil(from) ? '/flows' : from;
+      return <Navigate to={navigateTo} />;
+    }
+
+    const [countdown, setCountdown] = useState(3);
+
     useEffect(() => {
       // For non-dev environments, we'd like to login via external screen
       if (environment !== 'dev' && !isNil(loginUrl)) {
@@ -195,6 +198,7 @@ const AuthFormTemplate = React.memo(
         return () => clearInterval(timer);
       }
     }, []);
+
     // will redirect to promptX login page
     if (environment !== 'dev' && !isNil(loginUrl)) {
       return (
@@ -203,13 +207,6 @@ const AuthFormTemplate = React.memo(
             {t(`Logins are allowed only through CenterApp, Redirecting you in ${countdown}
             seconds...`)}
           </p>
-        </div>
-      );
-    }
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-full">
-          <ClipLoader color="#a9a9a9" />
         </div>
       );
     }
@@ -246,7 +243,7 @@ const AuthFormTemplate = React.memo(
         <BottomNote isSignup={isSignUp}></BottomNote>
       </Card>
     );
-  }
+  },
 );
 
 AuthFormTemplate.displayName = 'AuthFormTemplate';

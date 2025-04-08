@@ -10,6 +10,7 @@ import { Socket } from 'socket.io'
 import { aiProviderModule } from './ai/ai-provider.module'
 // import { setPlatformOAuthService } from './app-connection/app-connection-service/oauth2'
 import { analyticsModule } from './analytics/analytics-module'
+import { analyticsModule } from './analytics/analytics-module'
 import { setPlatformOAuthService } from './app-connection/app-connection-service/oauth2'
 import { userOAuth2Service } from './app-connection/app-connection-service/oauth2/services/user-oauth2-service'
 import { appConnectionModule } from './app-connection/app-connection.module'
@@ -105,7 +106,6 @@ import { flowConsumer } from './workers/consumer'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 import { workerModule } from './workers/worker-module'
 
-
 export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> => {
 
     await app.register(swagger, {
@@ -169,6 +169,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
         },
     })
 
+    await app.register(analyticsModule)
     await app.register(rateLimitModule)
 
     await app.register(fastifySocketIO, {

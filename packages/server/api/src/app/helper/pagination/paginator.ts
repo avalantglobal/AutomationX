@@ -74,19 +74,29 @@ export default class Paginator<Entity extends ObjectLiteral> {
     public async paginate(
         builder: SelectQueryBuilder<Entity>,
     ): Promise<PagingResult<Entity>> {
-        const entities = await this.appendPagingQuery(builder).getMany()
-        const hasMore = entities.length > this.limit
-
-        if (hasMore) {
-            entities.splice(entities.length - 1, 1)
-        }
-
+        const entities = await this.appendPagingQuery(builder, true).getMany();
+        
         if (entities.length === 0) {
             return this.toPagingResult(entities)
         }
 
-        if (!this.hasAfterCursor() && this.hasBeforeCursor()) {
-            entities.reverse()
+        const totalEntities = await this.appendPagingQuery(builder,false).getMany();
+        const isReverse = !this.hasAfterCursor() && this.hasBeforeCursor();
+        if (isReverse) {
+            entities.reverse();
+            totalEntities.reverse();
+        }
+        let hasMore = entities.length > this.limit;
+        // Adjust for edge case when navigating backwards
+        if (entities.length &&    isReverse && entities[0]?.id === totalEntities[0]?.id) {
+            hasMore = false;
+            if (entities.length > this.limit) {
+                entities.pop();
+            }
+        }
+
+        if (hasMore) {
+            entities.pop()
         }
 
         if (this.hasBeforeCursor() || hasMore) {
@@ -94,7 +104,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
         }
 
         if (this.hasAfterCursor() || (hasMore && this.hasBeforeCursor())) {
-            this.nextBeforeCursor = this.encode(entities[0])
+            this.nextBeforeCursor =  this.encode(entities[0]);
         }
 
         return this.toPagingResult(entities)
@@ -109,6 +119,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
 
     private appendPagingQuery(
         builder: SelectQueryBuilder<Entity>,
+        hasLimit:boolean
     ): SelectQueryBuilder<Entity> {
         const cursors: CursorParam = {}
         const clonedBuilder = new SelectQueryBuilder<Entity>(builder)
@@ -125,8 +136,12 @@ export default class Paginator<Entity extends ObjectLiteral> {
                 new Brackets((where) => this.buildCursorQuery(where, cursors)),
             )
         }
-
-        clonedBuilder.take(this.limit + 1)
+        if(hasLimit) {
+            clonedBuilder.take(this.limit + 1)
+        } else {
+            clonedBuilder.skip();
+        }
+       
         for (const [key, value] of Object.entries(this.buildOrder())) {
             clonedBuilder.addOrderBy(key, value)
         }
@@ -145,7 +160,9 @@ export default class Paginator<Entity extends ObjectLiteral> {
             queryString = `strftime('%s', ${this.alias}.${PAGINATION_KEY}) ${operator} strftime('%s', :${PAGINATION_KEY})`
         }
         else if (dbType === DatabaseType.POSTGRES) {
-            queryString = `DATE_TRUNC('second', ${this.alias}.${PAGINATION_KEY}) ${operator} DATE_TRUNC('second', :${PAGINATION_KEY}::timestamp)`
+            // queryString = `DATE_TRUNC('second', ${this.alias}.${PAGINATION_KEY}) ${operator} DATE_TRUNC('second', :${PAGINATION_KEY}::timestamp)`
+            // the query will be direct condition without parsing data - flow_run.created < '2025-04-08T03:35:13.202Z'
+            queryString = `${this.alias}.${PAGINATION_KEY} ${operator} :${PAGINATION_KEY}`
         }
         else {
             throw new Error('Unsupported database type')
@@ -204,7 +221,6 @@ export default class Paginator<Entity extends ObjectLiteral> {
             const value = decodeByType(type, raw)
             cursors[key] = value
         })
-
         return cursors
     }
 

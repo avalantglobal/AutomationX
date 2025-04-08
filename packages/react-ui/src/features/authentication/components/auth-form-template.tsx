@@ -73,7 +73,7 @@ const AuthFormTemplate = React.memo(
     const isSignUp = form === 'signup';
     const [searchParams] = useSearchParams();
     const from = searchParams.get('from');
-    const tokenFromUrl = searchParams.get('t');
+    const tokenFromUrl = searchParams.get('token');
     const token = authenticationSession.getToken();
 
     // To redirect to PromptX login page

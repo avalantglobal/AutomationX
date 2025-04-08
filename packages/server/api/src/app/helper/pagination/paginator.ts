@@ -104,7 +104,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
         }
 
         if (this.hasAfterCursor() || (hasMore && this.hasBeforeCursor())) {
-            this.nextBeforeCursor =  this.encode(entities[0]);
+            this.nextBeforeCursor = this.encode(entities[0]);
         }
 
         return this.toPagingResult(entities)

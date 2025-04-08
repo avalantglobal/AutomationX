@@ -15,7 +15,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { Type } from '@sinclair/typebox'
 import { StatusCodes } from 'http-status-codes'
 import { entitiesMustBeOwnedByCurrentProject } from '../../authentication/authorization'
-import { eventsHooks } from '../../helper/application-events'
+// import { eventsHooks } from '../../helper/application-events'
 import { flowFolderService as folderService } from './folder.service'
 
 const DEFAULT_PAGE_SIZE = 10
@@ -26,10 +26,11 @@ export const folderModule: FastifyPluginAsyncTypebox = async (app) => {
 const folderController: FastifyPluginAsyncTypebox = async (fastify) => {
     fastify.addHook('preSerialization', entitiesMustBeOwnedByCurrentProject)
     fastify.post('/', CreateFolderParams, async (request) => {
+        // Disallow duplicate folder creation
         const folderWithDisplayName = await folderService(request.log).getOneByDisplayNameCaseInsensitive({
             projectId: request.principal.projectId, 
-            displayName: request.body.displayName
-        });
+            displayName: request.body.displayName,
+        })
         if (!isNil(folderWithDisplayName)) {
             throw new ActivepiecesError({
                 code: ErrorCode.VALIDATION,

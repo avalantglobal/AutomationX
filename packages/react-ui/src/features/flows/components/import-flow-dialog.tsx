@@ -318,10 +318,11 @@ const ImportFlowDialog = (
             variant="outline"
             onClick={() => setIsDialogOpen(false)}
             disabled={isPending}
+            className='rounded-full'
           >
             {t('Cancel')}
           </Button>
-          <Button onClick={handleSubmit} loading={isPending}>
+          <Button className='rounded-full' onClick={handleSubmit} loading={isPending}>
             {t('Import')}
           </Button>
         </DialogFooter>

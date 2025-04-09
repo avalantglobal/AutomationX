@@ -95,7 +95,7 @@ const TemplateCard = ({ template, onSelectTemplate }: TemplateCardProps) => {
         <Button
           variant="default"
           loading={isPending}
-          className="px-2 h-8"
+          className="px-2 h-8 rounded-full"
           onClick={() => createFlow(template)}
         >
           {t('Use Template')}
@@ -105,7 +105,7 @@ const TemplateCard = ({ template, onSelectTemplate }: TemplateCardProps) => {
             <div className="size-10 flex justify-center items-center">
               <Button
                 variant="ghost"
-                className="rounded-full p-3 hover:bg-muted cursor-pointer flex justify-center items-center"
+                className="p-3 hover:bg-muted cursor-pointer flex justify-center items-center"
                 onClick={() => selectTemplate(template)}
               >
                 <Info className="w-4 h-4" />

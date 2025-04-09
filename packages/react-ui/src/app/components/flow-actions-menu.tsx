@@ -245,7 +245,7 @@ const FlowActionMenu: React.FC<FlowActionMenuProps> = ({
                 disabled={!userHasPermissionToUpdateFlow}
                 onSelect={(e) => e.preventDefault()}
               >
-                <div className="flex cursor-pointer flex-row gap-2 items-center">
+                <div className="flex cursor-pointer flex-row gap-2 items-center rounded-full">
                   <Import className="w-4 h-4" />
                   {t('Import')}
                 </div>

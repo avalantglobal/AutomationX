@@ -54,18 +54,15 @@ export const newMessage = createTrigger({
     async onEnable(context) {
         // Facebook doesn't require any API calls to enable webhooks
         // The webhook is enabled when it's verified through the handshake
-        console.log('Facebook Messenger webhook enabled',context);
     },
     async onDisable(context) {
         // No specific deletion needed for Facebook webhooks
-        console.log('Facebook Messenger webhook disabled',context);
     },
     handshakeConfiguration: {
         strategy: WebhookHandshakeStrategy.QUERY_PRESENT,
         paramName: 'hub.challenge',
     },
     async onHandshake(context) {
-        console.log('Facebook webhook handshake started');
         const payload = context.payload;
         
         // Get verification parameters from Facebook
@@ -75,14 +72,12 @@ export const newMessage = createTrigger({
         
         // Verify the token against the one provided in the trigger props
         if (mode === 'subscribe' && token === context.propsValue.verify_token) {
-            console.log('WEBHOOK_VERIFIED');
             return {
                 status: 200,
                 body: challenge,
                 headers: { "Content-Type": "text/plain" }
             };
         } else {
-            console.log('Webhook verification failed');
             return {
                 status: 403,
                 body: 'Verification failed',
@@ -92,10 +87,7 @@ export const newMessage = createTrigger({
     },
     async run(context) {
         const body = context.payload.body as FacebookWebhookPayload;
-        console.log('Facebook webhook RUN');
-        console.log('Webhook payload:', JSON.stringify(context.payload));
         if (!body || body.object !== 'page') {
-            console.log('Received non-page event');
             return [];
         }
         
@@ -118,7 +110,6 @@ export const newMessage = createTrigger({
                 }
             }
             
-            console.log(`Processed ${messages.length} new messages`);
             return messages;
         } catch (error) {
             console.error('Error processing Facebook messages:', error);

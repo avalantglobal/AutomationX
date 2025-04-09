@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
 
 import { Button } from '@/components/ui/button';

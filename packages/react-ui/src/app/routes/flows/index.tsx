@@ -350,7 +350,7 @@ const FlowsPage = () => {
                 <Button
                   disabled={!doesUserHavePermissionToWriteFlow}
                   variant="outline"
-                  className="flex gap-2 items-center"
+                  className="flex gap-2 items-center rounded-full"
                 >
                   <Import className="w-4 h-4" />
                   {t('Import Flow')}
@@ -369,7 +369,7 @@ const FlowsPage = () => {
                   <Button
                     disabled={!doesUserHavePermissionToWriteFlow}
                     variant="default"
-                    className="flex gap-2 items-center"
+                    className="flex gap-2 items-center rounded-full"
                     loading={isCreateFlowPending}
                   >
                     <span>{t('New Flow')}</span>

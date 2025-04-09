@@ -228,7 +228,7 @@ const ApTablesPage = () => {
               }}
             >
               {selectedRows.length > 0 && (
-                <Button className="w-full mr-2" size="sm" variant="destructive">
+                <Button className="w-full mr-2 rounded-full" size="sm" variant="destructive">
                   <Trash2 className="mr-2 w-4" />
                   {`${t('Delete')} (${selectedRows.length})`}
                 </Button>
@@ -256,7 +256,7 @@ const ApTablesPage = () => {
           <Button
             size="sm"
             onClick={() => createTable({ name: t('New Table') })}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 rounded-full"
             loading={isCreatingTable}
             disabled={!userHasTableWritePermission}
           >

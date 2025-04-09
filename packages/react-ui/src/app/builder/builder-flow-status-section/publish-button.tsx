@@ -66,6 +66,7 @@ const PublishButton = () => {
             loading={isSaving || isPublishingPending}
             disabled={isPublishedVersion || !flowVersion.valid}
             onClick={() => publish()}
+            className='rounded-full'
           >
             {t('Publish')}
           </Button>

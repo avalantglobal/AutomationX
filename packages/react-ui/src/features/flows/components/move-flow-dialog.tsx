@@ -122,7 +122,7 @@ const MoveFlowDialog = ({ children, flows, onMoveTo }: MoveFlowDialogProps) => {
               </FormMessage>
             )}
             <DialogFooter>
-              <Button type="submit" loading={isPending}>
+              <Button className='rounded-full' type="submit" loading={isPending}>
                 {t('Confirm')}
               </Button>
             </DialogFooter>

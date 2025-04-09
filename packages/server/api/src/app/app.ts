@@ -106,6 +106,7 @@ import { flowConsumer } from './workers/consumer'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 import { workerModule } from './workers/worker-module'
 
+
 export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> => {
 
     await app.register(swagger, {
@@ -169,7 +170,6 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
         },
     })
 
-    await app.register(analyticsModule)
     await app.register(rateLimitModule)
 
     await app.register(fastifySocketIO, {

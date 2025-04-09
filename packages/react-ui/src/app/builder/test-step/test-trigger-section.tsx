@@ -343,6 +343,7 @@ const TestTriggerSection = React.memo(
               <div className="flex-grow"></div>
               <Button
                 variant="outline"
+                className='rounded-full'
                 size="sm"
                 onClick={() => {
                   resetSimulation();
@@ -376,6 +377,7 @@ const TestTriggerSection = React.memo(
               <TestButtonTooltip disabled={!isValid}>
                 <Button
                   variant="outline"
+                  className='rounded-full'
                   size="sm"
                   onClick={() => simulateTrigger()}
                   keyboardShortcut="G"
@@ -392,6 +394,7 @@ const TestTriggerSection = React.memo(
                   {t('Or')}
                   <Button
                     variant="outline"
+                    className='rounded-full'
                     size="sm"
                     onClick={() => saveMockAsSampleData()}
                     loading={isSavingMockdata}
@@ -407,6 +410,7 @@ const TestTriggerSection = React.memo(
             <TestButtonTooltip disabled={!isValid}>
               <Button
                 variant="outline"
+                className='rounded-full'
                 size="sm"
                 onClick={() => pollTrigger()}
                 keyboardShortcut="G"

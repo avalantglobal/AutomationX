@@ -68,6 +68,7 @@ export function ConfirmationDeleteDialog({
               e.preventDefault();
               setIsOpen(false);
             }}
+            className='rounded-full'
           >
             {t('Cancel')}
           </Button>
@@ -79,6 +80,7 @@ export function ConfirmationDeleteDialog({
               e.preventDefault();
               mutate();
             }}
+            className='rounded-full'
           >
             {isDanger && <TriangleAlert className="size-4 mr-2" />}
             {buttonText || t('Remove')}

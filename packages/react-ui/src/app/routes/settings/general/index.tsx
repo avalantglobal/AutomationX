@@ -213,6 +213,7 @@ export default function GeneralPage() {
                   e.preventDefault();
                   mutation.mutate(form.getValues());
                 }}
+                className='rounded-full'
               >
                 {t('Save')}
               </Button>

@@ -94,7 +94,7 @@ export const useFlowsBulkActions = ({
                 {selectedRows.length > 0 ? (
                   <DropdownMenuTrigger asChild>
                     <Button
-                      className="h-9 w-full"
+                      className="h-9 w-full rounded-full"
                       variant={'default'}
                       onClick={() => {
                         setIsDropdownOpen(!isDropdownOpen);

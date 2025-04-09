@@ -184,7 +184,7 @@ const ArrayInput = React.memo(
           <Button
             variant="outline"
             size="sm"
-            className="mt-3"
+            className="mt-3 rounded-full"
             onClick={() => {
               append();
             }}

@@ -161,7 +161,7 @@ const ArrayPieceProperty = React.memo(
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-2"
+                className="mt-2 rounded-full"
                 onClick={() => {
                   append();
                 }}

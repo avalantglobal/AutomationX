@@ -34,6 +34,7 @@ const EditFlowOrViewDraftButton = () => {
           switchToDraft();
         }
       }}
+      className='gap-2 rounded-full'
     >
       {permissionToEditFlow ? t('Edit Flow') : t('View Draft')}
     </Button>

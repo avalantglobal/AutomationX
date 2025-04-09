@@ -403,7 +403,7 @@ function AppConnectionsPage() {
                 >
                   {selectedRows.length > 0 && (
                     <Button
-                      className="w-full mr-2"
+                      className="w-full mr-2 rounded-full"
                       onClick={() => setIsDialogOpen(true)}
                       size="sm"
                       variant="destructive"
@@ -435,6 +435,7 @@ function AppConnectionsPage() {
                   variant="default"
                   size="sm"
                   disabled={!userHasPermissionToWriteAppConnection}
+                  className='gap-2 items-center rounded-full'
                 >
                   {t('New Connection')}
                 </Button>

@@ -282,7 +282,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
               <DialogFooter>
                 <Button
                   onClick={(e) => form.handleSubmit(() => mutate())(e)}
-                  className="w-full"
+                  className="w-full rounded-full"
                   loading={isPending}
                   type="submit"
                   disabled={!form.formState.isValid}

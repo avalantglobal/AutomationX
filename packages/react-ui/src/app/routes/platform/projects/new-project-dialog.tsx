@@ -110,6 +110,7 @@ export const NewProjectDialog = ({
               e.preventDefault();
               form.handleSubmit(() => mutate())(e);
             }}
+            className='rounded-full'
           >
             {t('Save')}
           </Button>

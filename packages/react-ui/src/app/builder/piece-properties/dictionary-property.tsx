@@ -143,6 +143,7 @@ export const DictionaryProperty = ({
       ))}
       <Button
         variant="outline"
+        className='rounded-full'
         size="sm"
         onClick={add}
         type="button"

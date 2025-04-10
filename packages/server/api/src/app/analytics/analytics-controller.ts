@@ -1,5 +1,5 @@
+import { AnalyticsResponseSchema, GetAnalyticsParams } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { Type } from '@sinclair/typebox'
 import { StatusCodes } from 'http-status-codes'
 import { analyticsService } from './analytics-service'
 
@@ -10,35 +10,58 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
             schema: {
                 tags: ['analytics'],
                 description: 'Get analytics data for flow-runs',
-                querystring: Type.Object({
-                    startTimestamp: Type.String({ format: 'date-time' }),
-                    endTimestamp: Type.String({ format: 'date-time' }),
-                }),
+                querystring: GetAnalyticsParams, // Use shared DTO for query parameters
                 response: {
-                    [StatusCodes.OK]: Type.Record(
-                        Type.String(), // flowId as string key
-                        Type.Object({
-                            averageRuntime: Type.Number(),
-                            flowRunCount: Type.Number(),
-                            successRate: Type.Number(),
-                            failureRate: Type.Number(),
-                        }),
-                    ),
-                },
+                    [StatusCodes.OK]: AnalyticsResponseSchema, // Use shared schema for response
+                    [StatusCodes.BAD_REQUEST]: { 
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                        } }, // Allow any response structure for 400 Bad Request
+                    [StatusCodes.INTERNAL_SERVER_ERROR]: { 
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                        } }, // Allow any response structure for 500 Internal Server Error
+                }
+                ,
             },
         },
         async (request, reply) => {
-            const { startTimestamp, endTimestamp } = request.query as {
-                startTimestamp: string
-                endTimestamp: string
+            try {
+                const { startTimestamp, endTimestamp } = request.query
+
+                // Convert timestamps to Date objects for comparison
+                const start = new Date(startTimestamp)
+                const end = new Date(endTimestamp)
+
+                // Validate that startTimestamp comes before endTimestamp
+                if (start >= end) {
+                    return await reply.status(StatusCodes.BAD_REQUEST).send({
+                        message: 'startTimestamp must be less than endTimestamp',
+                    })
+                }
+
+                // Validate that startTimestamp and endTimestamp are valid dates
+                if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                    return await reply.status(StatusCodes.BAD_REQUEST).send({
+                        message: 'startTimestamp and endTimestamp must be a valid date ',
+                    })
+                }
+
+                const analyticsData = await analyticsService.getAnalyticsData({
+                    startTimestamp,
+                    endTimestamp,
+                })
+
+                return await reply.send(analyticsData)
             }
-
-            const analyticsData = await analyticsService.getAnalyticsData({
-                startTimestamp: new Date(startTimestamp),
-                endTimestamp: new Date(endTimestamp),
-            })
-
-            await reply.send(analyticsData)
+            catch (error) {
+                app.log.error(error)
+                await reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: 'An error occurred while fetching analytics data',
+                })
+            }
         },
     )
 }

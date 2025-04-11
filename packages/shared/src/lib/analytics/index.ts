@@ -41,7 +41,8 @@ export const AnalyticsReportResponse = Type.Object({
 })
 export type AnalyticsReportResponse = Static<typeof AnalyticsReportResponse>
 
-// Flow run analytics reports
+
+// Flow run analytics reports (custom)
 
 // Export GetAnalyticsParams
 export const GetAnalyticsParams = Type.Object({

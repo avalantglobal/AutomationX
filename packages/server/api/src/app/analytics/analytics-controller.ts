@@ -6,7 +6,7 @@ import { analyticsService } from './analytics-service'
 export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
     app.get(
         '/',
-        analyticsRequest,
+        AnalyticsRequestParams,
         async (request, reply) => {
             try {
                 const { startTimestamp, endTimestamp } = request.query
@@ -51,8 +51,10 @@ const errorResponseObj = {
     type: 'object',
     properties: {
         message: { type: 'string' },
-    } }
-const analyticsRequest = {
+    }}
+
+const AnalyticsRequestParams = {
+    config: {},
     schema: {
         tags: ['analytics'],
         description: 'Get analytics data for flow-runs',

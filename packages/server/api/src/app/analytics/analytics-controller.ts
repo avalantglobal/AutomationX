@@ -6,27 +6,7 @@ import { analyticsService } from './analytics-service'
 export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
     app.get(
         '/',
-        {
-            schema: {
-                tags: ['analytics'],
-                description: 'Get analytics data for flow-runs',
-                querystring: GetAnalyticsParams, // Use shared DTO for query parameters
-                response: {
-                    [StatusCodes.OK]: AnalyticsResponseSchema, // Use shared schema for response
-                    [StatusCodes.BAD_REQUEST]: { 
-                        type: 'object',
-                        properties: {
-                            message: { type: 'string' },
-                        } }, // Allow any response structure for 400 Bad Request
-                    [StatusCodes.INTERNAL_SERVER_ERROR]: { 
-                        type: 'object',
-                        properties: {
-                            message: { type: 'string' },
-                        } }, // Allow any response structure for 500 Internal Server Error
-                }
-                ,
-            },
-        },
+        analyticsRequest,
         async (request, reply) => {
             try {
                 const { startTimestamp, endTimestamp } = request.query
@@ -65,3 +45,25 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
         },
     )
 }
+
+
+const errorResponseObj = { 
+    type: 'object',
+    properties: {
+        message: { type: 'string' },
+    } }
+const analyticsRequest = {
+    schema: {
+        tags: ['analytics'],
+        description: 'Get analytics data for flow-runs',
+        querystring: GetAnalyticsParams, // Use shared DTO for query parameters
+        response: {
+            [StatusCodes.OK]: AnalyticsResponseSchema, // Use shared schema for response
+            [StatusCodes.BAD_REQUEST]: errorResponseObj, // Allow any response structure for 400 Bad Request
+            [StatusCodes.INTERNAL_SERVER_ERROR]: errorResponseObj, // Allow any response structure for 500 Internal Server Error
+        }
+        ,
+    },
+}
+
+

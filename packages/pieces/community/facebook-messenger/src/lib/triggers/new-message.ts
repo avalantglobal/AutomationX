@@ -1,5 +1,5 @@
 
-import { createTrigger, TriggerStrategy,Property ,PieceAuth} from '@activepieces/pieces-framework';
+import { createTrigger, TriggerStrategy,Property ,PieceAuth,WebhookHandshakeStrategy} from '@activepieces/pieces-framework';
 const markdown = `
 - In the webhook settings, paste this URL: 
   \`{{webhookUrl}}\`
@@ -24,13 +24,30 @@ export const new_message = createTrigger({
     async onDisable(context){
         // implement webhook deletion logic
     },
+    handshakeConfiguration: {
+            strategy: WebhookHandshakeStrategy.QUERY_PRESENT,
+            paramName: 'hub.challenge',
+        }
+    ,
+    async onHandshake(context){
+      console.log('hanshaking')
+      const payload = context.payload;
+      const res = {
+                      status: 200,
+                      body: payload.queryParams['hub.challenge'],
+                      headers: { "Content-Type": "text/html" }
+                  };
+      return res
+    },
     async run(context){
-      const { events } = context.payload.body as { events: unknown[] };
-      if (!events) {
-        return [];
-      }
-      return events.filter(
-        (event: any) => event.mode === 'active' && event.type === 'message'
-      );
+      return ['TestToken'];
+      
+      // const { events } = context.payload.body as { events: unknown[] };
+      // if (!events) {
+      //   return [];
+      // }
+      // return events.filter(
+      //   (event: any) => event.mode === 'active' && event.type === 'message'
+      // );
     }
 })

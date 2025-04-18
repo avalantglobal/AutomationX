@@ -1,8 +1,7 @@
-import { AnalyticsResult, FlowRunStatus, GetAnalyticsParams, FlowStatus,OverviewResult } from '@activepieces/shared'
-import { flowRunRepo } from '../flows/flow-run/flow-run-service'
-import { flowRepo } from '../flows/flow/flow.repo'
-import 'tslib'
+import { AnalyticsResult, FlowRunStatus, FlowStatus, GetAnalyticsParams, OverviewResult } from '@activepieces/shared'
 import dayjs from 'dayjs'
+import { flowRepo } from '../flows/flow/flow.repo'
+import { flowRunRepo } from '../flows/flow-run/flow-run-service'
 
 export const analyticsService = {
     async getAnalyticsData({
@@ -41,7 +40,7 @@ export const analyticsService = {
             .orderBy('date', 'ASC')
 
         const rawResults = await query.getRawMany()
-        
+
         const results: AnalyticsResult[] = rawResults.map(result => ({
             date: result.date,
             successfulFlowRuns: parseInt(result.successfulFlowRuns) || 0,
@@ -53,26 +52,25 @@ export const analyticsService = {
         return results
     },
     async getWorkflowOverview(): Promise<OverviewResult> {
-        const workflowCount = await flowRepo().count();
-        
+        const workflowCount = await flowRepo().count()
+
         const activeWorkflowCount = await flowRepo().count({
             where: {
-                status: FlowStatus.ENABLED
-            }
-        });
+                status: FlowStatus.ENABLED,
+            },
+        })
 
         const flowRunCount = await flowRunRepo().createQueryBuilder('flowRun')
             .where('flowRun.finishTime BETWEEN :start AND :end', {
                 start: dayjs().startOf('month').toISOString(),
-                end: dayjs().endOf('month').toISOString()
+                end: dayjs().endOf('month').toISOString(),
             })
-            .getCount();
+            .getCount()
 
         return {
             workflowCount,
             activeWorkflowCount,
-            flowRunCount
-        };
-    }
+            flowRunCount,
+        }
+    },
 }
-

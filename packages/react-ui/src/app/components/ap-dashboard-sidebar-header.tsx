@@ -45,10 +45,7 @@ const ApDashboardSidebarHeader = ({
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    {/**
-                     * sidebar header keep only website Name 
-                     */}
-                  <h1 className={`text-xl font-semibold ${theme === 'light'? 'text-gray-900' : ''}`}>{branding.websiteName}</h1>
+                    <h1 className={`text-xl font-semibold ${theme === 'light' ? 'text-gray-900' : ''}`}>{branding.websiteName}</h1>
                     {/* {showProjectSwitcher ? (
                       <img
                         src={branding.logos.logoIconUrl}

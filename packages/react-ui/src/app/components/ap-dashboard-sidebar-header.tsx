@@ -34,14 +34,16 @@ const ApDashboardSidebarHeader = ({
   return (
     <SidebarHeader className="pb-0 ">
       <div
-        className='flex items-center justify-between pr-1'
+        className={cn('flex items-center justify-between pr-1', {
+          'justify-center': false,
+        })}
       >
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-center gap-1">
           <div className="relative">
             <Button variant="ghost">
               <Link
                 to={isHomeDashboard ? defaultRoute : '/platform'}
-                className="flex items-center"
+                className="flex items-center justify-center"
               >
                 <Tooltip>
                   <TooltipTrigger asChild>

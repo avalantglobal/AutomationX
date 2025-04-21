@@ -16,6 +16,7 @@ import { ProjectSwitcher } from '@/features/projects/components/project-switcher
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { cn, determineDefaultRoute } from '@/lib/utils';
+import { useTheme } from '@/components/theme-provider';
 
 const ApDashboardSidebarHeader = ({
   isHomeDashboard,
@@ -25,6 +26,7 @@ const ApDashboardSidebarHeader = ({
   const branding = flagsHooks.useWebsiteBranding();
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
   const { embedState } = useEmbedding();
+  const { theme } = useTheme();
   const showProjectSwitcher =
     edition !== ApEdition.COMMUNITY && !embedState.isEmbedded;
   const defaultRoute = determineDefaultRoute(useAuthorization().checkAccess);
@@ -46,7 +48,7 @@ const ApDashboardSidebarHeader = ({
                     {/**
                      * sidebar header keep only website Name 
                      */}
-                  <h1 className="text-xl font-semibold text-gray-900">{branding.websiteName}</h1>
+                  <h1 className={`text-xl font-semibold ${theme === 'light'? 'text-gray-900' : ''}`}>{branding.websiteName}</h1>
                     {/* {showProjectSwitcher ? (
                       <img
                         src={branding.logos.logoIconUrl}

@@ -32,20 +32,22 @@ const ApDashboardSidebarHeader = ({
   return (
     <SidebarHeader className="pb-0 ">
       <div
-        className={cn('flex items-center justify-between pr-1', {
-          'justify-center': !showProjectSwitcher,
-        })}
+        className='flex items-center justify-between pr-1'
       >
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center gap-1">
           <div className="relative">
             <Button variant="ghost">
               <Link
                 to={isHomeDashboard ? defaultRoute : '/platform'}
-                className="flex items-center justify-center"
+                className="flex items-center"
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    {showProjectSwitcher ? (
+                    {/**
+                     * sidebar header keep only website Name 
+                     */}
+                  <h1 className="text-xl font-semibold text-gray-900">{branding.websiteName}</h1>
+                    {/* {showProjectSwitcher ? (
                       <img
                         src={branding.logos.logoIconUrl}
                         alt={t('home')}
@@ -61,7 +63,7 @@ const ApDashboardSidebarHeader = ({
                         height={51}
                         className="max-h-[51px] max-w-[160px] object-contain"
                       />
-                    )}
+                    )} */}
                   </TooltipTrigger>
                   <TooltipContent side="bottom">{t('Home')}</TooltipContent>
                 </Tooltip>

@@ -16,7 +16,6 @@ import {
 import { useEmbedding, useNewWindow } from '@/components/embed-provider';
 import { Button } from '@/components/ui/button';
 import EditableText from '@/components/ui/editable-text';
-import { HomeButton } from '@/components/ui/home-button';
 import {
   Tooltip,
   TooltipContent,

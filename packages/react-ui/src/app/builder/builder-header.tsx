@@ -23,7 +23,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { UserAvatar } from '@/components/ui/user-avatar';
 import { foldersHooks } from '@/features/folders/lib/folders-hooks';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
@@ -86,7 +85,6 @@ export const BuilderHeader = () => {
     <div className="bg-background select-none">
       <div className="relative items-center flex h-[55px] w-full p-4 bg-muted/30">
         <div className="flex items-center gap-2">
-          <HomeButton route={'/flows'} />
           <div className="flex gap-2 items-center">
             {!embedState.hideFolders && (
               <>
@@ -205,9 +203,7 @@ export const BuilderHeader = () => {
               </TooltipContent>
             </Tooltip>
           )}
-
           <BuilderFlowStatusSection></BuilderFlowStatusSection>
-          <UserAvatar></UserAvatar>
         </div>
       </div>
     </div>

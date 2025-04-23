@@ -9,7 +9,7 @@ export const analyticsService = {
         startDate,
         endDate,
         projectId,
-    }: GetAnalyticsParams): Promise<AnalyticsResult[]> {
+    }: { startDate: string; endDate: string; projectId: string }): Promise<AnalyticsResult[]> {
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
             .select('DATE(flowRun.finishTime)', 'date')

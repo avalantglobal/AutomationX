@@ -47,6 +47,7 @@ export type AnalyticsReportResponse = Static<typeof AnalyticsReportResponse>
 export const GetAnalyticsParams = Type.Object({
     startDate: Type.String({ format: 'date' }),
     endDate: Type.String({ format: 'date' }),
+    projectId: Type.String(),
 })
 export type GetAnalyticsParams = Static<typeof GetAnalyticsParams>
 
@@ -69,6 +70,15 @@ export const AnalyticsResponseSchema = Type.Array(
 )
 export type AnalyticsResponse = Static<typeof AnalyticsResponseSchema>
 
+
+
+//For Overview API
+
+export const GetOverviewParams = Type.Object({
+    projectId: Type.String(),
+    platformId: Type.String(),
+})
+export type GetOverviewParams = Static<typeof GetOverviewParams>
 export type OverviewResult = {
     workflowCount: number
     activeWorkflowCount: number

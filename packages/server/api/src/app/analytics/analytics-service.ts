@@ -1,12 +1,14 @@
-import { AnalyticsResult, FlowRunStatus, FlowStatus, GetAnalyticsParams, OverviewResult } from '@activepieces/shared'
-import dayjs from 'dayjs'
+import { AnalyticsResult, FlowRunStatus, FlowStatus, GetAnalyticsParams, GetOverviewParams, OverviewResult } from '@activepieces/shared'
 import { flowRepo } from '../flows/flow/flow.repo'
 import { flowRunRepo } from '../flows/flow-run/flow-run-service'
+import 'tslib'
+import dayjs from 'dayjs'
 
 export const analyticsService = {
     async getAnalyticsData({
         startDate,
         endDate,
+        projectId,
     }: GetAnalyticsParams): Promise<AnalyticsResult[]> {
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
@@ -32,6 +34,7 @@ export const analyticsService = {
                 start: startDate,
                 end: endDate,
             })
+            .andWhere('flowRun.projectId = :projectId', { projectId })
             .setParameters({
                 successStatus: FlowRunStatus.SUCCEEDED,
                 failureStatus: FlowRunStatus.FAILED,
@@ -40,7 +43,7 @@ export const analyticsService = {
             .orderBy('date', 'ASC')
 
         const rawResults = await query.getRawMany()
-
+        
         const results: AnalyticsResult[] = rawResults.map(result => ({
             date: result.date,
             successfulFlowRuns: parseInt(result.successfulFlowRuns) || 0,
@@ -51,26 +54,35 @@ export const analyticsService = {
 
         return results
     },
-    async getWorkflowOverview(): Promise<OverviewResult> {
-        const workflowCount = await flowRepo().count()
+    async getWorkflowOverview(projectId: string): Promise<OverviewResult> {
+        const { start, end } = {
+            start: dayjs().startOf('month').toISOString(),
+            end: dayjs().endOf('month').toISOString(),
+        }
 
-        const activeWorkflowCount = await flowRepo().count({
-            where: {
-                status: FlowStatus.ENABLED,
-            },
-        })
+        const result = await flowRepo()
+            .createQueryBuilder('flow')
+            .select('COUNT(flow.id)', 'workflowCount')
+            .addSelect(
+                'SUM(CASE WHEN flow.status = :enabledStatus AND flow.projectId = :projectId THEN 1 ELSE 0 END)',
+                'activeWorkflowCount',
+            )
+            .addSelect(
+                `(SELECT COUNT(*) FROM flow_run flowRun 
+                  WHERE flowRun.projectId = :projectId 
+                  AND flowRun.finishTime BETWEEN :start AND :end)`,
+                'flowRunCount',
+            )
+            .where('flow.projectId = :projectId', { projectId })
+            .setParameters({ enabledStatus: FlowStatus.ENABLED, start, end })
+            .getRawOne()
 
-        const flowRunCount = await flowRunRepo().createQueryBuilder('flowRun')
-            .where('flowRun.finishTime BETWEEN :start AND :end', {
-                start: dayjs().startOf('month').toISOString(),
-                end: dayjs().endOf('month').toISOString(),
-            })
-            .getCount()
-
+        
         return {
-            workflowCount,
-            activeWorkflowCount,
-            flowRunCount,
+            workflowCount: parseInt(result.workflowCount) || 0,
+            activeWorkflowCount: parseInt(result.activeWorkflowCount) || 0,
+            flowRunCount: parseInt(result.flowRunCount) || 0,
         }
     },
 }
+

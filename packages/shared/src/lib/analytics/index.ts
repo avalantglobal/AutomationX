@@ -47,7 +47,6 @@ export type AnalyticsReportResponse = Static<typeof AnalyticsReportResponse>
 export const GetAnalyticsParams = Type.Object({
     startDate: Type.String({ format: 'date' }),
     endDate: Type.String({ format: 'date' }),
-    projectId: Type.String(),
 })
 export type GetAnalyticsParams = Static<typeof GetAnalyticsParams>
 

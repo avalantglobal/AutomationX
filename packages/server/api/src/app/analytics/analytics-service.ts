@@ -1,18 +1,17 @@
-import { AnalyticsResult, FlowRunStatus, FlowStatus, OverviewResult } from '@activepieces/shared'
-import { Static, Type } from '@sinclair/typebox'
+import { AnalyticsResponse, FlowRunStatus, FlowStatus, OverviewResponse } from '@activepieces/shared'
 import dayjs from 'dayjs'
 import { flowRepo } from '../flows/flow/flow.repo'
 import { flowRunRepo } from '../flows/flow-run/flow-run-service'
-import 'tslib'
 
 
-export const GetAnalyticsDataParams = Type.Object({
-    startDate: Type.String({ format: 'date-time' }),
-    endDate: Type.String({ format: 'date-time' }),
-    projectId: Type.String(),
-})
+type GetAnalyticsDataParams = {
+    startDate: string
+    endDate: string
+    projectId: string
+}
+
 export const analyticsService = {
-    async getAnalyticsData(params: Static<typeof GetAnalyticsDataParams>): Promise<AnalyticsResult[]> {
+    async getAnalyticsData(params: GetAnalyticsDataParams): Promise<AnalyticsResponse> {
         const { startDate, endDate, projectId } = params
 
         const query = flowRunRepo()
@@ -48,46 +47,44 @@ export const analyticsService = {
             .orderBy('date', 'ASC')
 
         const rawResults = await query.getRawMany()
-        
-        const results: AnalyticsResult[] = rawResults.map(result => ({
-            date: result.date,
-            successfulFlowRuns: result.successfulFlowRuns,
-            failedFlowRuns: result.failedFlowRuns,
-            successfulFlowRunsDuration: result.successfulFlowRunsDuration,
-            failedFlowRunsDuration: result.failedFlowRunsDuration,
+
+        const results: AnalyticsResponse = rawResults.map(result => ({
+            date: result.date.toISOString(),
+            successfulFlowRuns: Number(result.successfulFlowRuns),
+            failedFlowRuns: Number(result.failedFlowRuns),
+            successfulFlowRunsDuration: Number(result.successfulFlowRunsDuration),
+            failedFlowRunsDuration: Number(result.failedFlowRunsDuration),
         }))
 
         return results
     },
-    async getWorkflowOverview(projectId: string): Promise<OverviewResult> {
+    async getOverview(projectId: string): Promise<OverviewResponse> {
         const { start, end } = {
             start: dayjs().startOf('month').toISOString(),
             end: dayjs().endOf('month').toISOString(),
         }
 
         const result = await flowRepo()
-            .createQueryBuilder('flow')
-            .select('COUNT(flow.id)', 'workflowCount')
-            .addSelect(
-                'SUM(CASE WHEN flow.status = :enabledStatus AND flow.projectId = :projectId THEN 1 ELSE 0 END)',
-                'activeWorkflowCount',
-            )
-            .addSelect(
-                `(SELECT COUNT(*) FROM flow_run flowRun 
-                  WHERE flowRun.projectId = :projectId 
-                  AND flowRun.finishTime BETWEEN :start AND :end)`,
-                'flowRunCount',
-            )
-            .where('flow.projectId = :projectId', { projectId })
-            .setParameters({ enabledStatus: FlowStatus.ENABLED, start, end })
+            .createQueryBuilder('f')
+            .select([
+                'COUNT(f.id) AS "workflowCount"',
+                `SUM(CASE 
+                        WHEN f.status = :flowStatus AND f."projectId" = :projectId 
+                        THEN 1 ELSE 0 
+                    END) AS "activeWorkflowCount"`,
+                `(SELECT COUNT(*) FROM flow_run fr 
+                        WHERE fr."projectId" = :projectId 
+                        AND fr."finishTime" BETWEEN :start AND :end
+                    ) AS "flowRunCount"`,
+            ])
+            .where('f.projectId = :projectId', { projectId })
+            .setParameters({ flowStatus: FlowStatus.ENABLED, start, end })
             .getRawOne()
 
-        
         return {
-            workflowCount: result.workflowCount,
-            activeWorkflowCount: result.activeWorkflowCount,
-            flowRunCount: result.flowRunCount,
+            workflowCount: Number(result.workflowCount),
+            activeWorkflowCount: Number(result.activeWorkflowCount),
+            flowRunCount: Number(result.flowRunCount),
         }
     },
 }
-

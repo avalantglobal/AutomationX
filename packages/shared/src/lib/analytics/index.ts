@@ -72,12 +72,6 @@ export type AnalyticsResponse = Static<typeof AnalyticsResponseSchema>
 
 
 //For Overview API
-
-export const GetOverviewParams = Type.Object({
-    projectId: Type.String(),
-    platformId: Type.String(),
-})
-export type GetOverviewParams = Static<typeof GetOverviewParams>
 export type OverviewResult = {
     workflowCount: number
     activeWorkflowCount: number

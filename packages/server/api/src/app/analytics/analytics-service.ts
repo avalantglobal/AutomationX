@@ -1,9 +1,10 @@
-import { AnalyticsResult, FlowRunStatus, FlowStatus, GetAnalyticsParams, GetOverviewParams, OverviewResult } from '@activepieces/shared'
+import { AnalyticsResult, FlowRunStatus, FlowStatus, OverviewResult } from '@activepieces/shared'
+import { Static, Type } from '@sinclair/typebox'
+import dayjs from 'dayjs'
 import { flowRepo } from '../flows/flow/flow.repo'
 import { flowRunRepo } from '../flows/flow-run/flow-run-service'
-import { Static, Type } from '@sinclair/typebox'
 import 'tslib'
-import dayjs from 'dayjs'
+
 
 export const GetAnalyticsDataParams = Type.Object({
     startDate: Type.String({ format: 'date-time' }),
@@ -12,7 +13,7 @@ export const GetAnalyticsDataParams = Type.Object({
 })
 export const analyticsService = {
     async getAnalyticsData(params: Static<typeof GetAnalyticsDataParams>): Promise<AnalyticsResult[]> {
-        const { startDate, endDate, projectId } = params;
+        const { startDate, endDate, projectId } = params
 
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
@@ -46,17 +47,17 @@ export const analyticsService = {
             .groupBy('DATE(flowRun.finishTime)')
             .orderBy('date', 'ASC')
 
-        const rawResults = await query.getRawMany();
+        const rawResults = await query.getRawMany()
         
         const results: AnalyticsResult[] = rawResults.map(result => ({
             date: result.date,
-            successfulFlowRuns: parseInt(result.successfulFlowRuns) || 0,
-            failedFlowRuns: parseInt(result.failedFlowRuns) || 0,
-            successfulFlowRunsDuration: parseInt(result.successfulFlowRunsDuration) || 0,
-            failedFlowRunsDuration: parseInt(result.failedFlowRunsDuration) || 0,
-        }));
+            successfulFlowRuns: result.successfulFlowRuns,
+            failedFlowRuns: result.failedFlowRuns,
+            successfulFlowRunsDuration: result.successfulFlowRunsDuration,
+            failedFlowRunsDuration: result.failedFlowRunsDuration,
+        }))
 
-        return results;
+        return results
     },
     async getWorkflowOverview(projectId: string): Promise<OverviewResult> {
         const { start, end } = {
@@ -83,9 +84,9 @@ export const analyticsService = {
 
         
         return {
-            workflowCount: parseInt(result.workflowCount) || 0,
-            activeWorkflowCount: parseInt(result.activeWorkflowCount) || 0,
-            flowRunCount: parseInt(result.flowRunCount) || 0,
+            workflowCount: result.workflowCount,
+            activeWorkflowCount: result.activeWorkflowCount,
+            flowRunCount: result.flowRunCount,
         }
     },
 }

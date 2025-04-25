@@ -1,10 +1,9 @@
-import { AnalyticsResponseSchema, FlowStatus, GetAnalyticsParams, OverviewResponseSchema } from '@activepieces/shared'
+import { AnalyticsResponseSchema, GetAnalyticsParams, OverviewResponseSchema } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { analyticsService } from './analytics-service'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes } from 'http-status-codes'
+import { analyticsService } from './analytics-service'
 import 'tslib'
-import jwt from 'jsonwebtoken'
 const ErrorResponse = {
     type: 'object',
     properties: {
@@ -38,26 +37,6 @@ const OverviewRequest = {
     },
 }
 
-const _decodeJwt = (token: string): string => {
-    try {
-        // Decode the JWT without verifying the signature
-        const decoded = jwt.decode(token) as { projectId: string, platform: { id: string } }
-
-        if (decoded && decoded.projectId) {
-            return decoded.projectId
-        }
-        else {
-            throw new Error('Failed to decode JWT or missing projectId')
-        }
-    }
-    catch (error) {
-        console.error('Error decoding JWT:', error)
-        throw new Error('Invalid JWT token')
-    }
-}
-
-
-
 export const analyticsController: FastifyPluginAsyncTypebox = async (app: FastifyInstance) => {
     app.get('/workflow-performance',
         AnalyticsRequest,
@@ -65,19 +44,8 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app: Fastif
             try {
                 
                 const { startDate, endDate } = request.query as GetAnalyticsParams
+                const projectId: string = request.principal.projectId 
 
-                // Extract the token from the Authorization header
-                const authHeader = request.headers.authorization
-
-                if (!authHeader || !authHeader.startsWith('Bearer ')) {
-                    return await reply.status(StatusCodes.UNAUTHORIZED).send({
-                        message: 'Authorization token is missing or invalid',
-                    })
-                }
-                const token = authHeader.split(' ')[1] // Extract the token part
-                
-                const projectId = _decodeJwt(token)
-                
                 // Convert timestamps to Date objects for comparison
                 const start = new Date(startDate)
                 const end = new Date(endDate)
@@ -122,17 +90,7 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app: Fastif
     ),
     app.get('/overview', OverviewRequest, async (request: FastifyRequest, reply: FastifyReply) => {
         try {
-            // Extract the token from the Authorization header
-            const authHeader = request.headers.authorization
-
-            if (!authHeader || !authHeader.startsWith('Bearer ')) {
-                return await reply.status(StatusCodes.UNAUTHORIZED).send({
-                    message: 'Authorization token is missing or invalid',
-                })
-            }
-
-            const token = authHeader.split(' ')[1] // Extract the token part
-            const projectId = _decodeJwt(token)
+            const projectId: string = request.principal.projectId 
             const overviewData = await analyticsService.getWorkflowOverview(projectId)
             return await reply.send(overviewData)
         }

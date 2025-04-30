@@ -104,9 +104,9 @@ export const overViewService = {
             .getRawOne()
 
         return {
-            workflowCount: Number(result.workflowCount || 0),
-            activeWorkflowCount: Number(result.activeWorkflowCount || 0),
-            flowRunCount: Number(result.flowRunCount || 0),
+            workflowCount: Number(result.workflowCount),
+            activeWorkflowCount: Number(result.activeWorkflowCount),
+            flowRunCount: Number(result.flowRunCount),
         }
     },
 }

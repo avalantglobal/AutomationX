@@ -76,7 +76,7 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
         catch (error) {
             app.log.error('Error fetching analytics data:', error)
             return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                message: '1An error occurred while fetching analytics data' + error,
+                message: 'An error occurred while fetching analytics data\n' + error,
             })
         }
     })

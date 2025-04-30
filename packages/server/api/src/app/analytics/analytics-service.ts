@@ -1,22 +1,44 @@
-import { AnalyticsResponse, FlowRunStatus, FlowStatus, OverviewResponse } from '@activepieces/shared'
+import { AnalyticsResponse, FlowRunStatus, FlowStatus, OverviewResponse, 
+} from '@activepieces/shared'
 import dayjs from 'dayjs'
 import { flowRepo } from '../flows/flow/flow.repo'
 import { flowRunRepo } from '../flows/flow-run/flow-run-service'
-
+import { projectService } from '../project/project-service' // Import projectService
 
 type GetAnalyticsDataParams = {
     startDate: string
     endDate: string
-    projectId: string
+    projectIds: string[]
 }
+
+
+
+export async function queryProjectEntity(platformId: string, userId: string ): Promise<string[]> {
+    const result = await projectService.getAllForUser({ 
+        platformId, 
+        userId, // Replace with actual userId
+    })
+
+    const projectIds = result
+        .map(project => project.id)
+    return projectIds
+
+}
+
 
 export const analyticsService = {
     async getAnalyticsData(params: GetAnalyticsDataParams): Promise<AnalyticsResponse> {
-        const { startDate, endDate, projectId } = params
-
+        const { startDate, endDate, projectIds } = params
+        // Removed unused variable projectIds
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
-            .select('DATE(flowRun.finishTime)', 'date')
+            .where('flowRun.projectId IN (:...projectIds)')
+            .where('DATE(flowRun.finishTime) BETWEEN :start AND :end', {
+                start: startDate,
+                end: endDate,
+            })
+            .select('flowRun.projectId')
+            .addSelect('DATE(flowRun.finishTime)', 'date')
             .addSelect('COUNT(*)', 'totalFlowRuns')
             .addSelect(
                 'SUM(CASE WHEN flowRun.status = :successStatus THEN 1 ELSE 0 END)',
@@ -34,14 +56,10 @@ export const analyticsService = {
                 'SUM(CASE WHEN flowRun.status = :failureStatus THEN flowRun.duration ELSE 0 END)',
                 'failedFlowRunsDuration',
             )
-            .where('DATE(flowRun.finishTime) BETWEEN :start AND :end', {
-                start: startDate,
-                end: endDate,
-            })
-            .andWhere('flowRun.projectId = :projectId', { projectId })
             .setParameters({
                 successStatus: FlowRunStatus.SUCCEEDED,
                 failureStatus: FlowRunStatus.FAILED,
+                projectIds,
             })
             .groupBy('DATE(flowRun.finishTime)')
             .orderBy('date', 'ASC')
@@ -49,7 +67,7 @@ export const analyticsService = {
         const rawResults = await query.getRawMany()
 
         const results: AnalyticsResponse = rawResults.map(result => ({
-            date: result.date.toISOString(),
+            date: new Date(result.date).toISOString(),
             successfulFlowRuns: Number(result.successfulFlowRuns),
             failedFlowRuns: Number(result.failedFlowRuns),
             successfulFlowRunsDuration: Number(result.successfulFlowRunsDuration),
@@ -58,33 +76,37 @@ export const analyticsService = {
 
         return results
     },
-    async getOverview(projectId: string): Promise<OverviewResponse> {
+}
+
+
+export const overViewService = {
+    async getOverview(projectIds: string[]): Promise<OverviewResponse> {
         const { start, end } = {
             start: dayjs().startOf('month').toISOString(),
             end: dayjs().endOf('month').toISOString(),
         }
 
         const result = await flowRepo()
-            .createQueryBuilder('f')
-            .select([
-                'COUNT(f.id) AS "workflowCount"',
-                `SUM(CASE 
-                        WHEN f.status = :flowStatus AND f."projectId" = :projectId 
-                        THEN 1 ELSE 0 
-                    END) AS "activeWorkflowCount"`,
-                `(SELECT COUNT(*) FROM flow_run fr 
-                        WHERE fr."projectId" = :projectId 
-                        AND fr."finishTime" BETWEEN :start AND :end
-                    ) AS "flowRunCount"`,
-            ])
-            .where('f.projectId = :projectId', { projectId })
-            .setParameters({ flowStatus: FlowStatus.ENABLED, start, end })
+            .createQueryBuilder('flow')
+            .select('COUNT(flow.id)', 'workflowCount')
+            .addSelect(
+                'SUM(CASE WHEN flow.status = :enabledStatus THEN 1 ELSE 0 END)',
+                'activeWorkflowCount',
+            )
+            .addSelect(
+                `(SELECT COUNT(*) FROM flow_run flowRun 
+                  WHERE flowRun.projectId IN (:...projectIds) 
+                  AND DATE(flowRun.finishTime) BETWEEN :start AND :end)`,
+                'flowRunCount',
+            )
+            .where('flow.projectId IN (:...projectIds)', { projectIds })
+            .setParameters({ enabledStatus: FlowStatus.ENABLED, start, end })
             .getRawOne()
 
         return {
-            workflowCount: Number(result.workflowCount),
-            activeWorkflowCount: Number(result.activeWorkflowCount),
-            flowRunCount: Number(result.flowRunCount),
+            workflowCount: Number(result.workflowCount || 0),
+            activeWorkflowCount: Number(result.activeWorkflowCount || 0),
+            flowRunCount: Number(result.flowRunCount || 0),
         }
     },
 }

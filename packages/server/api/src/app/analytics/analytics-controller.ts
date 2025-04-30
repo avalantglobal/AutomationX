@@ -1,8 +1,7 @@
 import { AnalyticsResponse, GetAnalyticsParams, OverviewResponse } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { StatusCodes } from 'http-status-codes'
-import { analyticsService } from './analytics-service'
-
+import { analyticsService, overViewService, queryProjectEntity } from './analytics-service'
 const ErrorResponse = {
     type: 'object',
     properties: {
@@ -35,11 +34,9 @@ const OverviewRequest = {
         },
     },
 }
-
 export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
     app.get('/flow-performance', AnalyticsRequest, async (request, reply) => {
         try {
-            const projectId = request.principal.projectId
             const { startDate, endDate } = request.query
 
             // Convert timestamps to Date objects for comparison
@@ -67,11 +64,11 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
                     message: 'Dates cannot be in the future',
                 })
             }
-
+            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id)
             const analyticsData = await analyticsService.getAnalyticsData({
                 startDate,
                 endDate,
-                projectId,
+                projectIds,
             })
 
             return await reply.send(analyticsData)
@@ -79,22 +76,41 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
         catch (error) {
             app.log.error('Error fetching analytics data:', error)
             return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                message: 'An error occurred while fetching analytics data',
+                message: '1An error occurred while fetching analytics data' + error,
             })
         }
     })
 
     app.get('/overview', OverviewRequest, async (request, reply) => {
         try {
-            const projectId: string = request.principal.projectId
-            const overviewData = await analyticsService.getOverview(projectId)
-            return await reply.send(overviewData)
+            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id)
+            
+            // const workflowCount = await overViewService.getWorkflowCount(projectIds)
+            // const activeWorkflowCount = await overViewService.getActiveWorkflowCount(projectIds)
+            // const flowRunCount = await overViewService.getFlowRunCount(projectIds)
+            
+            const response = await overViewService.getOverview(projectIds)
+            return await reply.send(response)
         }
         catch (error) {
             app.log.error('Error fetching workflow overview:', error)
             return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                message: 'An error occurred while fetching analytics data',
+                message: 'An error occurred while fetching analytics data\n' + error,
             })
         }
     })
+    app.get('/test', async (request, reply) => {
+        try {
+            const result = await queryProjectEntity('3mqBxHM6OJzWVbCwa4UW5', 'x3CEml5EKtqdvfqsuAq49') // Call the function from test.ts
+            //const result = await testQuery() // Call the function from test.ts
+            return await reply.send(result)
+        }
+        catch (error) {
+            app.log.error('Error in test endpoint:', error)
+            return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                message: 'An error occurred while processing the test endpoint',
+            })
+        }
+    })
+
 }

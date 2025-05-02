@@ -1,14 +1,14 @@
 import { AnalyticsResponse, GetAnalyticsParams, OverviewResponse } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { StatusCodes } from 'http-status-codes'
-import { analyticsService, overViewService, queryProjectEntity } from './analytics-service'
+import { analyticsService, overViewService} from './analytics-service'
+import { projectService } from '../project/project-service' 
 const ErrorResponse = {
     type: 'object',
     properties: {
         message: { type: 'string' },
     },
 }
-
 const AnalyticsRequest = {
     config: {},
     schema: {
@@ -22,7 +22,6 @@ const AnalyticsRequest = {
         },
     },
 }
-
 const OverviewRequest = {
     config: {},
     schema: {
@@ -34,11 +33,20 @@ const OverviewRequest = {
         },
     },
 }
+async function queryProjectEntity(platformId: string, userId: string ): Promise<string[]> {
+    const result = await projectService.getAllForUser({ 
+        platformId, 
+        userId,
+    })
+    const projectIds = result
+        .map(project => project.id)
+    return projectIds
+}
+
 export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
-    app.get('/flow-performance', AnalyticsRequest, async (request, reply) => {
+    app.get('/flow-performance/all', AnalyticsRequest, async (request, reply) => {
         try {
             const { startDate, endDate } = request.query
-
             // Convert timestamps to Date objects for comparison
             const start = new Date(startDate)
             const end = new Date(endDate)
@@ -64,6 +72,7 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
                     message: 'Dates cannot be in the future',
                 })
             }
+            //query project ids by platformId and userId
             const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id)
             const analyticsData = await analyticsService.getAnalyticsData({
                 startDate,
@@ -80,15 +89,9 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
             })
         }
     })
-
     app.get('/overview', OverviewRequest, async (request, reply) => {
         try {
-            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id)
-            
-            // const workflowCount = await overViewService.getWorkflowCount(projectIds)
-            // const activeWorkflowCount = await overViewService.getActiveWorkflowCount(projectIds)
-            // const flowRunCount = await overViewService.getFlowRunCount(projectIds)
-            
+            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id) 
             const response = await overViewService.getOverview(projectIds)
             return await reply.send(response)
         }
@@ -99,18 +102,4 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
             })
         }
     })
-    app.get('/test', async (request, reply) => {
-        try {
-            const result = await queryProjectEntity('3mqBxHM6OJzWVbCwa4UW5', 'x3CEml5EKtqdvfqsuAq49') // Call the function from test.ts
-            //const result = await testQuery() // Call the function from test.ts
-            return await reply.send(result)
-        }
-        catch (error) {
-            app.log.error('Error in test endpoint:', error)
-            return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                message: 'An error occurred while processing the test endpoint',
-            })
-        }
-    })
-
 }

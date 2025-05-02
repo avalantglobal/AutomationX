@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuthorization } from '@/hooks/authorization-hooks';
@@ -9,6 +9,9 @@ import { isNil } from '@activepieces/shared';
 import { LoadingScreen } from '../../components/ui/loading-screen';
 import { authenticationSession } from '../../lib/authentication-session';
 import { FloatingChatButton } from '@/components/custom/FloatingChatButton';
+import { chatApi } from '../../components/lib/chat-api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { userHooks } from '../../hooks/user-hooks';
 
 export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -22,9 +25,30 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
     isFetching,
   } = projectHooks.useSwitchToProjectInParams();
   const { checkAccess } = useAuthorization();
+  const { data: user } = userHooks.useCurrentUser();
+  const {      // use this in your onClick
+    data: botxToken,
+    isSuccess,
+    isError: isBotxJwtError,
+    error: botxJwtError,
+  } = useQuery({
+    queryKey: ['user-botx-jwt', user?.id],
+    queryFn: () => chatApi.getSignBotxJwt({
+      userId: user?.id || "",
+      email: user?.email || "",
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || ""
+    }),
+  });
   if (isNil(projectIdFromParams) || isNil(projectIdFromParams)) {
     return <Navigate to="/sign-in" replace />;
   }
+  useEffect(() => {
+    if (isSuccess && botxToken?.token) {
+      authenticationSession.saveBotxToken(botxToken?.token);
+    }
+  }, [isSuccess, botxToken]);
+
   const failedToSwitchToProject =
     !isProjectValid && !isNil(projectIdFromParams);
   if (failedToSwitchToProject) {

@@ -10,6 +10,16 @@ export const ChatResponseSchema = Type.Object({
   outputTokens: Type.Number(),
   totalTokens: Type.Number(),
 });
-
+export const ChatBotxJwtRequestSchema = Type.Object({
+  email: Type.String(),
+  firstName: Type.String(),
+  lastName: Type.String(),
+  userId: Type.String(),
+});
+export const ChatBotxJwtResponseSchema = Type.Object({
+  token: Type.String()
+});
 export type ChatRequest = Static<typeof ChatRequestSchema>;
 export type ChatResponse = Static<typeof ChatResponseSchema>;
+export type ChatBotxJwtRequest = Static<typeof ChatBotxJwtRequestSchema>;
+export type ChatBotxJwtResponse = Static<typeof ChatBotxJwtResponseSchema>;

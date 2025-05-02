@@ -65,10 +65,10 @@ function request<TResponse>(
     ...config,
     headers: {
       ...config.headers,
-      Authorization:
-        unAuthenticated || !isApWebsite
+      Authorization: config.headers?.Authorization ??
+        (unAuthenticated || !isApWebsite
           ? undefined
-          : `Bearer ${authenticationSession.getToken()}`,
+          : `Bearer ${authenticationSession.getToken()}`),
     },
   })
     .then((response) =>

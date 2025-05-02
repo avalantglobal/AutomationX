@@ -8,6 +8,7 @@ import { isNil } from '@activepieces/shared';
 
 import { LoadingScreen } from '../../components/ui/loading-screen';
 import { authenticationSession } from '../../lib/authentication-session';
+import { FloatingChatButton } from '@/components/custom/FloatingChatButton';
 
 export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -61,9 +62,8 @@ const RedirectToCurrentProjectRoute: React.FC<
   );
 
   const searchParamsString = searchParams.toString();
-  const pathWithParamsAndSearchParams = `${pathWithParams}${
-    searchParamsString ? `?${searchParamsString}` : ''
-  }`;
+  const pathWithParamsAndSearchParams = `${pathWithParams}${searchParamsString ? `?${searchParamsString}` : ''
+    }`;
 
   return (
     <Navigate
@@ -82,16 +82,17 @@ export const ProjectRouterWrapper = ({
   element,
   path,
 }: ProjectRouterWrapperProps) => [
-  {
-    path: `/projects/:projectId${path.startsWith('/') ? path : `/${path}`}`,
-    element: <TokenCheckerWrapper>{element}</TokenCheckerWrapper>,
-  },
-  {
-    path,
-    element: (
-      <RedirectToCurrentProjectRoute path={path}>
-        {element}
-      </RedirectToCurrentProjectRoute>
-    ),
-  },
-];
+    {
+      path: `/projects/:projectId${path.startsWith('/') ? path : `/${path}`}`,
+      element: <TokenCheckerWrapper> {element}<FloatingChatButton /> </TokenCheckerWrapper>,
+    },
+    {
+      path,
+      element: (
+        <RedirectToCurrentProjectRoute path={path}>
+          {element}
+          <FloatingChatButton />
+        </RedirectToCurrentProjectRoute>
+      ),
+    },
+  ];

@@ -1,12 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronsLeftRight, Send, X } from 'lucide-react';
-import ReactQuill from 'react-quill';
+//todo(hk) commented out quill for now
+// import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './FloatingChatButton.css';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { AvatarLetter } from '../ui/avatar-letter';
 import { useEmbedding } from '../embed-provider';
 import { userHooks } from '@/hooks/user-hooks';
+import { chatApi } from '../lib/chat-api';
+import { useMutation } from '@tanstack/react-query';
+import { useForm, Controller } from "react-hook-form";
+import { Textarea } from '../ui/textarea';
+import { t } from 'i18next';
+import StreamMarkdown from './StreamMarkdown';
+import { flagsHooks } from '../../hooks/flags-hooks';
+import { Input } from '../ui/input';
+import { Skeleton } from '../ui/skeleton';
 
 export const modulesChat = {
   toolbar: [
@@ -26,37 +36,52 @@ export const FloatingChatButton: React.FC = () => {
     return null;
   }
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const branding = flagsHooks.useWebsiteBranding();
   const [chatHistory, setChatHistory] = useState<
-    { sender: string; text: string }[]
+    { sender: string; text: any, isLoadingText?: boolean }[]
   >([]);
 
+  const {
+    mutate,       // use this in your onClick
+    data,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (message: string) => chatApi.sendMessage({ message }),
+  });
+
+
   const toggleChat = () => setIsOpen(!isOpen);
-
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('message', message);
-    if (message.trim()) {
-      // Add user message to chat history
-      setChatHistory((prev) => [...prev, { sender: 'user', text: message }]);
-
-      // Simulate AI response
-      const aiResponse = await getAIResponse(message);
-      setChatHistory((prev) => [...prev, { sender: 'ai', text: aiResponse }]);
-
-      setMessage('');
+  const sendMessage = (data: any) => {
+    if (data.message) {
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'user', text: data.message },
+        { sender: 'ai', text: '', isLoadingText: true },
+      ]);
+      mutate(data.message);
+      reset()
     }
-  };
+  }
 
-  const getAIResponse = async (userMessage: string): Promise<string> => {
-    // Simulate an API call to get a response from AI
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(`${userMessage}`);
-      }, 1000); // Simulate a delay
-    });
-  };
-
+  useEffect(() => {
+    if (isSuccess) {
+      setChatHistory((prev) => [
+        ...prev.filter((chat) => chat.sender !== 'ai' || !chat.isLoadingText),
+        { sender: 'ai', text: data },
+      ]);
+      reset();
+    }
+  }, [isSuccess, data]);
+  useEffect(() => {
+    if (isError) {
+      setChatHistory((prev) => [
+        ...prev.filter((chat) => chat.sender !== 'ai' || !chat.isLoadingText),
+        { sender: 'ai', text: error.message },
+      ]);
+    }
+  }, [isError, error]);
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
@@ -67,7 +92,28 @@ export const FloatingChatButton: React.FC = () => {
   const renderChatMessages = () => {
     return chatHistory.map((chat, index) => (
       <div key={index} className="flex items-start justify-start space-x-4">
-        <Avatar className="rounded-xs h-10 w-10">
+        {
+          chat.sender === 'ai' ? (
+            <img
+              src={branding.logos.logoIconUrl}
+              alt={t('home')}
+              width={24}
+              height={24}
+              className="max-h-[30px] max-w-[30px] object-contain"
+            />
+          ) : (
+            <Avatar className="rounded-xs h-5 w-5">
+              <AvatarFallback className="rounded-xs">
+                <AvatarLetter
+                  name={user.firstName + ' ' + user.lastName}
+                  email={user.email}
+                  disablePopup={true}
+                />
+              </AvatarFallback>
+            </Avatar>
+          )
+        }
+        {/* <Avatar className="rounded-xs h-10 w-10">
           <AvatarFallback className="rounded-xs">
             {chat.sender === 'user' ? (
               <AvatarLetter
@@ -76,21 +122,38 @@ export const FloatingChatButton: React.FC = () => {
                 disablePopup={true}
               />
             ) : (
-              <div className="flex items-center justify-center h-full w-full text-white bg-primary">
-                <ChevronsLeftRight className="size-7" />
-              </div>
+              <img
+                src={branding.logos.logoIconUrl}
+                alt={t('home')}
+                width={24}
+                height={24}
+                className="max-h-[30px] max-w-[30px] object-contain"
+              />
             )}
           </AvatarFallback>
-        </Avatar>
+        </Avatar> */}
         <div>
-          <span className="font-black text-sm">
+          <span className="font-semibold text-base">
             {chat.sender === 'user' ? user.firstName : 'PromptX'}
           </span>
-          <span dangerouslySetInnerHTML={{ __html: chat.text }} />
+          {
+            chat.isLoadingText ?
+              <Skeleton>......</Skeleton>
+              :
+              <StreamMarkdown
+                content={chat.text}
+              />
+          }
+
         </div>
       </div>
     ));
   };
+  const { handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      message: ""
+    }
+  });
 
   return (
     <>
@@ -98,7 +161,7 @@ export const FloatingChatButton: React.FC = () => {
         <div className="floating-chat-container rounded-lg shadow-xl flex flex-col animate-in slide-in-from-bottom-5">
           <div className="flex items-center justify-between border-b rounded-t-lg pb-3">
             <h3 className="font-semibold">
-              Describe the workflow you want to create
+              AutomationX
             </h3>
             <button onClick={toggleChat}>
               <X className="size-5 hover:opacity-75" />
@@ -112,17 +175,23 @@ export const FloatingChatButton: React.FC = () => {
             {renderChatMessages()}
           </div>
 
-          <form onSubmit={sendMessage}>
-            <ReactQuill
-              value={message}
-              onChange={setMessage}
-              placeholder="Describe the workflow you want to create"
-              className="flex-1 relative"
-              modules={modulesChat}
+          <form
+            onSubmit={handleSubmit(sendMessage)}
+            className="flex items-start gap-2 he"
+          >
+            <Controller
+              name="message"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder='How can I help you?'
+                />
+              )}
             />
             <button
               type="submit"
-              className="send-chat-button p-2 text-gray-400 rounded-md "
+              className="send-chat-button p-2 text-gray-400 rounded-md"
             >
               <Send className="size-5" />
             </button>
@@ -131,7 +200,7 @@ export const FloatingChatButton: React.FC = () => {
       )}
 
       <button
-        className="floating-btn size-10 rounded-full bg-primary shadow-lg hover:bg-primary/90 transition-all duration-200 animate-in zoom-in"
+        className="floating-btn size-10 rounded-full bg-[#254C7E] shadow-lg hover:bg-[#254C7E]/90 transition-all duration-200 animate-in zoom-in"
         onClick={toggleChat}
       >
         <ChevronsLeftRight className="size-5" />

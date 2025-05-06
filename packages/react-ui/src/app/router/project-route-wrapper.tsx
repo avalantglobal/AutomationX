@@ -33,10 +33,9 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
     isError: isBotxJwtError,
     error: botxJwtError,
   } = useQuery({
-    queryKey: ['user-botx-jwt', user?.id],
+    queryKey: ['user-botx-jwt', user?.email],
     queryFn: () =>
       botxApi.getSignBotxJwt({
-        userId: 3678,
         email: user?.email || '',
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',

@@ -7,8 +7,7 @@ export const ChatRequestSchema = Type.Object({
 export const ChatBotxJwtRequestSchema = Type.Object({
   email: Type.String(),
   firstName: Type.String(),
-  lastName: Type.String(),
-  userId: Type.Integer(),
+  lastName: Type.String()
 });
 export type ChatRequest = Static<typeof ChatRequestSchema>;
 export type ChatBotxJwtRequest = Static<typeof ChatBotxJwtRequestSchema>;

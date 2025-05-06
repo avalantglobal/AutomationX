@@ -1,16 +1,25 @@
-import { AnalyticsResponse, FlowRunStatus, FlowStatus, OverviewResponse, 
-} from '@activepieces/shared'
+import { AnalyticsResponse, FlowRunStatus, FlowStatus, OverviewResponse } from '@activepieces/shared'
 import dayjs from 'dayjs'
 import { flowRepo } from '../flows/flow/flow.repo'
 import { flowRunRepo } from '../flows/flow-run/flow-run-service'
+import { projectService } from '../project/project-service'
+
 type GetAnalyticsDataParams = {
     startDate: string
     endDate: string
-    projectIds: string[]
+    platformId: string
+    userId: string
 }
+
+type GetOverviewParams = {
+    platformId: string
+    userId: string
+}
+
 export const analyticsService = {
     async getAnalyticsData(params: GetAnalyticsDataParams): Promise<AnalyticsResponse> {
-        const { startDate, endDate, projectIds } = params
+        const { startDate, endDate, platformId, userId } = params
+        const projectIds = await getProjectIds(platformId, userId)
         // Removed unused variable projectIds
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
@@ -19,7 +28,7 @@ export const analyticsService = {
                 start: startDate,
                 end: endDate,
             })
-            .select('flowRun.projectId')
+            .select('flowRun.projectId', 'projectId')
             .addSelect('DATE(flowRun.finishTime)', 'date')
             .addSelect('COUNT(*)', 'totalFlowRuns')
             .addSelect(
@@ -43,12 +52,13 @@ export const analyticsService = {
                 failureStatus: FlowRunStatus.FAILED,
                 projectIds,
             })
-            .groupBy('DATE(flowRun.finishTime)')
+            .groupBy('"projectId", "date"')
             .orderBy('date', 'ASC')
 
         const rawResults = await query.getRawMany()
 
         const results: AnalyticsResponse = rawResults.map(result => ({
+            projectId: result.projectId,
             date: new Date(result.date).toISOString(),
             successfulFlowRuns: Number(result.successfulFlowRuns),
             failedFlowRuns: Number(result.failedFlowRuns),
@@ -58,13 +68,13 @@ export const analyticsService = {
 
         return results
     },
-}
-export const overViewService = {
-    async getOverview(projectIds: string[]): Promise<OverviewResponse> {
+    async getOverview(params: GetOverviewParams): Promise<OverviewResponse> {
         const { start, end } = {
             start: dayjs().startOf('month').toISOString(),
             end: dayjs().endOf('month').toISOString(),
         }
+        const { platformId, userId } = params
+        const projectIds = await getProjectIds(platformId, userId)
 
         const result = await flowRepo()
             .createQueryBuilder('flow')
@@ -74,9 +84,9 @@ export const overViewService = {
                 'activeWorkflowCount',
             )
             .addSelect(
-                `(SELECT COUNT(*) FROM flow_run flowRun 
-                  WHERE flowRun.projectId IN (:...projectIds) 
-                  AND DATE(flowRun.finishTime) BETWEEN :start AND :end)`,
+                `(SELECT COUNT(*) FROM flow_run "flowRun"
+                WHERE "flowRun"."projectId" IN (:...projectIds)
+                AND DATE("flowRun"."finishTime") BETWEEN :start AND :end)`,
                 'flowRunCount',
             )
             .where('flow.projectId IN (:...projectIds)', { projectIds })
@@ -89,4 +99,14 @@ export const overViewService = {
             flowRunCount: Number(result.flowRunCount),
         }
     },
+}
+
+async function getProjectIds(platformId: string, userId: string ): Promise<string[]> {
+    const result = await projectService.getAllForUser({
+        platformId,
+        userId,
+    })
+    const projectIds = result
+        .map(project => project.id)
+    return projectIds
 }

@@ -1,14 +1,15 @@
 import { AnalyticsResponse, GetAnalyticsParams, OverviewResponse } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { StatusCodes } from 'http-status-codes'
-import { analyticsService, overViewService} from './analytics-service'
-import { projectService } from '../project/project-service' 
+import { analyticsService } from './analytics-service'
+
 const ErrorResponse = {
     type: 'object',
     properties: {
         message: { type: 'string' },
     },
 }
+
 const AnalyticsRequest = {
     config: {},
     schema: {
@@ -22,6 +23,7 @@ const AnalyticsRequest = {
         },
     },
 }
+
 const OverviewRequest = {
     config: {},
     schema: {
@@ -33,18 +35,9 @@ const OverviewRequest = {
         },
     },
 }
-async function queryProjectEntity(platformId: string, userId: string ): Promise<string[]> {
-    const result = await projectService.getAllForUser({ 
-        platformId, 
-        userId,
-    })
-    const projectIds = result
-        .map(project => project.id)
-    return projectIds
-}
 
 export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
-    app.get('/flow-performance/all', AnalyticsRequest, async (request, reply) => {
+    app.get('/flow-performance', AnalyticsRequest, async (request, reply) => {
         try {
             const { startDate, endDate } = request.query
             // Convert timestamps to Date objects for comparison
@@ -72,12 +65,12 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
                     message: 'Dates cannot be in the future',
                 })
             }
-            //query project ids by platformId and userId
-            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id)
+
             const analyticsData = await analyticsService.getAnalyticsData({
                 startDate,
                 endDate,
-                projectIds,
+                platformId: request.principal.platform.id,
+                userId: request.principal.id,
             })
 
             return await reply.send(analyticsData)
@@ -91,8 +84,10 @@ export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
     })
     app.get('/overview', OverviewRequest, async (request, reply) => {
         try {
-            const projectIds: string[] = await queryProjectEntity(request.principal.platform.id, request.principal.id) 
-            const response = await overViewService.getOverview(projectIds)
+            const response = await analyticsService.getOverview({
+                platformId: request.principal.platform.id,
+                userId: request.principal.id,
+            })
             return await reply.send(response)
         }
         catch (error) {

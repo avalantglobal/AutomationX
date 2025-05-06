@@ -10,5 +10,13 @@ export const ChatBotxJwtResponseSchema = Type.Object({
   token: Type.String(),
 });
 
+export const ChatUserMessagesResponseSchema = Type.Object({
+  speaker: Type.String(),
+  content: Type.String(),
+});
+
 export type ChatResponse = Static<typeof ChatResponseSchema>;
 export type ChatBotxJwtResponse = Static<typeof ChatBotxJwtResponseSchema>;
+export type ChatUserMessagesReqsponse = Static<
+  typeof ChatUserMessagesResponseSchema
+>;

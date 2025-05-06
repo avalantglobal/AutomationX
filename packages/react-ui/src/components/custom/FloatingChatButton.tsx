@@ -9,9 +9,8 @@ import { AvatarLetter } from '../ui/avatar-letter';
 import { useEmbedding } from '../embed-provider';
 import { userHooks } from '@/hooks/user-hooks';
 import { botxApi } from '../lib/botx-api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
-import { Textarea } from '../ui/textarea';
 import { t } from 'i18next';
 import StreamMarkdown from './StreamMarkdown';
 import { flagsHooks } from '../../hooks/flags-hooks';
@@ -38,11 +37,30 @@ export const FloatingChatButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const branding = flagsHooks.useWebsiteBranding();
   const [chatHistory, setChatHistory] = useState<
-    { sender: string; text: any; isLoadingText?: boolean }[]
+    {
+      sender: string;
+      text: any;
+      isLoadingText?: boolean;
+      showStreamText?: boolean;
+    }[]
   >([]);
 
   const { mutate, data, isSuccess, isError, error } = useMutation({
     mutationFn: (message: string) => botxApi.sendMessage({ message }),
+  });
+
+  const {
+    data: userLastMessages,
+    error: userMessageError,
+    isLoading,
+    isSuccess: isUserMessageSuccess,
+  } = useQuery({
+    queryKey: ['user-messages'],
+    queryFn: botxApi.getLastUserChatMessages,
+    enabled: isOpen && !!user,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   const toggleChat = () => setIsOpen(!isOpen);
@@ -50,7 +68,7 @@ export const FloatingChatButton: React.FC = () => {
     if (data.message) {
       setChatHistory((prev) => [
         ...prev,
-        { sender: 'user', text: data.message },
+        { sender: 'human', text: data.message },
         { sender: 'ai', text: '', isLoadingText: true },
       ]);
       mutate(data.message);
@@ -62,11 +80,12 @@ export const FloatingChatButton: React.FC = () => {
     if (isSuccess) {
       setChatHistory((prev) => [
         ...prev.filter((chat) => chat.sender !== 'ai' || !chat.isLoadingText),
-        { sender: 'ai', text: data },
+        { sender: 'ai', text: data, showStreamText: true },
       ]);
       reset();
     }
   }, [isSuccess, data]);
+
   useEffect(() => {
     if (isError) {
       setChatHistory((prev) => [
@@ -75,6 +94,19 @@ export const FloatingChatButton: React.FC = () => {
       ]);
     }
   }, [isError, error]);
+
+  useEffect(() => {
+    if (isUserMessageSuccess) {
+      // not to show stream text style for history messages
+      let chatHistory = userLastMessages.map((m) => ({
+        text: m.content,
+        sender: m.speaker,
+        showStreamText: false,
+      }));
+      setChatHistory(chatHistory);
+    }
+  }, [isUserMessageSuccess, userLastMessages]);
+
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
@@ -106,12 +138,15 @@ export const FloatingChatButton: React.FC = () => {
         )}
         <div>
           <span className="font-semibold text-base">
-            {chat.sender === 'user' ? user.firstName : 'PromptX'}
+            {chat.sender === 'human' ? user.firstName : 'PromptX'}
           </span>
           {chat.isLoadingText ? (
             <Skeleton className="font-semibold text-xl">.....</Skeleton>
           ) : (
-            <StreamMarkdown content={chat.text} />
+            <StreamMarkdown
+              content={chat.text}
+              showStreamText={chat.showStreamText}
+            />
           )}
         </div>
       </div>

@@ -2,11 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 
-const StreamMarkdown = ({ content }: { content: string }) => {
+const StreamMarkdown = ({
+  content,
+  showStreamText = true,
+}: {
+  content: string;
+  showStreamText?: boolean;
+}) => {
   const [displayedContent, setDisplayedContent] = useState('');
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (!showStreamText) {
+      setDisplayedContent(content);
+      return;
+    }
     let index = 0;
     const interval = setInterval(() => {
       if (index < content.length - 1) {
@@ -20,7 +30,7 @@ const StreamMarkdown = ({ content }: { content: string }) => {
       }
     }, 10);
     return () => clearInterval(interval);
-  }, [content]);
+  }, [content, showStreamText]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

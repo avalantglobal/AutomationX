@@ -41,6 +41,10 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
       }),
+    enabled: !!user, // Run only when user data is available
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   if (isNil(projectIdFromParams) || isNil(projectIdFromParams)) {

@@ -341,9 +341,10 @@ export function SidebarComponent({
         show={platform?.showPoweredBy && isHomeDashboard}
         position="absolute"
       />
-      <div className="absolute bottom-0 right-0 w-full">
+      {/* hide chatbot button for platform */}
+      {/* <div className="absolute bottom-0 right-0 w-full">
         <FloatingChatButton />
-      </div>
+      </div> */}
     </div>
   );
 }

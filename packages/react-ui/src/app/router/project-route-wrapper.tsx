@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuthorization } from '@/hooks/authorization-hooks';
@@ -8,6 +8,10 @@ import { isNil } from '@activepieces/shared';
 
 import { LoadingScreen } from '../../components/ui/loading-screen';
 import { authenticationSession } from '../../lib/authentication-session';
+import { FloatingChatButton } from '@/components/custom/FloatingChatButton';
+import { botxApi } from '../../components/lib/botx-api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { userHooks } from '../../hooks/user-hooks';
 
 export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -21,9 +25,37 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
     isFetching,
   } = projectHooks.useSwitchToProjectInParams();
   const { checkAccess } = useAuthorization();
+  const { data: user } = userHooks.useCurrentUser();
+  const {
+    // use this in your onClick
+    data: botxToken,
+    isSuccess,
+    isError: isBotxJwtError,
+    error: botxJwtError,
+  } = useQuery({
+    queryKey: ['user-botx-jwt', user?.email],
+    queryFn: () =>
+      botxApi.getSignBotxJwt({
+        email: user?.email || '',
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+      }),
+    enabled: !!user, // Run only when user data is available
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
+  });
+
   if (isNil(projectIdFromParams) || isNil(projectIdFromParams)) {
     return <Navigate to="/sign-in" replace />;
   }
+  useEffect(() => {
+    // fetch botx Jwt to get the token that will be used requesting botxApi
+    if (isSuccess && botxToken?.token) {
+      authenticationSession.saveBotxToken(botxToken?.token);
+    }
+  }, [isSuccess, botxToken]);
+
   const failedToSwitchToProject =
     !isProjectValid && !isNil(projectIdFromParams);
   if (failedToSwitchToProject) {
@@ -57,7 +89,7 @@ const RedirectToCurrentProjectRoute: React.FC<
 
   const pathWithParams = `${path.startsWith('/') ? path : `/${path}`}`.replace(
     /:(\w+)/g,
-    (_, param) => params[param] ?? '',
+    (_, param) => params[param] ?? ''
   );
 
   const searchParamsString = searchParams.toString();
@@ -84,13 +116,20 @@ export const ProjectRouterWrapper = ({
 }: ProjectRouterWrapperProps) => [
   {
     path: `/projects/:projectId${path.startsWith('/') ? path : `/${path}`}`,
-    element: <TokenCheckerWrapper>{element}</TokenCheckerWrapper>,
+    element: (
+      <TokenCheckerWrapper>
+        {' '}
+        {element}
+        <FloatingChatButton />{' '}
+      </TokenCheckerWrapper>
+    ),
   },
   {
     path,
     element: (
       <RedirectToCurrentProjectRoute path={path}>
         {element}
+        <FloatingChatButton />
       </RedirectToCurrentProjectRoute>
     ),
   },

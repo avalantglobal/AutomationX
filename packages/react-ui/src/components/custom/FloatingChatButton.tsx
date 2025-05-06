@@ -8,9 +8,9 @@ import { Avatar, AvatarFallback } from '../ui/avatar';
 import { AvatarLetter } from '../ui/avatar-letter';
 import { useEmbedding } from '../embed-provider';
 import { userHooks } from '@/hooks/user-hooks';
-import { chatApi } from '../lib/chat-api';
+import { botxApi } from '../lib/botx-api';
 import { useMutation } from '@tanstack/react-query';
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from 'react-hook-form';
 import { Textarea } from '../ui/textarea';
 import { t } from 'i18next';
 import StreamMarkdown from './StreamMarkdown';
@@ -38,19 +38,12 @@ export const FloatingChatButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const branding = flagsHooks.useWebsiteBranding();
   const [chatHistory, setChatHistory] = useState<
-    { sender: string; text: any, isLoadingText?: boolean }[]
+    { sender: string; text: any; isLoadingText?: boolean }[]
   >([]);
 
-  const {
-    mutate,       // use this in your onClick
-    data,
-    isSuccess,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: (message: string) => chatApi.sendMessage({ message }),
+  const { mutate, data, isSuccess, isError, error } = useMutation({
+    mutationFn: (message: string) => botxApi.sendMessage({ message }),
   });
-
 
   const toggleChat = () => setIsOpen(!isOpen);
   const sendMessage = (data: any) => {
@@ -61,9 +54,9 @@ export const FloatingChatButton: React.FC = () => {
         { sender: 'ai', text: '', isLoadingText: true },
       ]);
       mutate(data.message);
-      reset()
+      reset();
     }
-  }
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -92,67 +85,42 @@ export const FloatingChatButton: React.FC = () => {
   const renderChatMessages = () => {
     return chatHistory.map((chat, index) => (
       <div key={index} className="flex items-start justify-start space-x-4">
-        {
-          chat.sender === 'ai' ? (
-            <img
-              src={branding.logos.logoIconUrl}
-              alt={t('home')}
-              width={24}
-              height={24}
-              className="max-h-[30px] max-w-[30px] object-contain"
-            />
-          ) : (
-            <Avatar className="rounded-xs h-5 w-5">
-              <AvatarFallback className="rounded-xs">
-                <AvatarLetter
-                  name={user.firstName + ' ' + user.lastName}
-                  email={user.email}
-                  disablePopup={true}
-                />
-              </AvatarFallback>
-            </Avatar>
-          )
-        }
-        {/* <Avatar className="rounded-xs h-10 w-10">
-          <AvatarFallback className="rounded-xs">
-            {chat.sender === 'user' ? (
+        {chat.sender === 'ai' ? (
+          <img
+            src={branding.logos.logoIconUrl}
+            alt={t('home')}
+            width={24}
+            height={24}
+            className="max-h-[30px] max-w-[30px] object-contain"
+          />
+        ) : (
+          <Avatar className="rounded-xs h-5 w-5">
+            <AvatarFallback className="rounded-xs">
               <AvatarLetter
                 name={user.firstName + ' ' + user.lastName}
                 email={user.email}
                 disablePopup={true}
               />
-            ) : (
-              <img
-                src={branding.logos.logoIconUrl}
-                alt={t('home')}
-                width={24}
-                height={24}
-                className="max-h-[30px] max-w-[30px] object-contain"
-              />
-            )}
-          </AvatarFallback>
-        </Avatar> */}
+            </AvatarFallback>
+          </Avatar>
+        )}
         <div>
           <span className="font-semibold text-base">
             {chat.sender === 'user' ? user.firstName : 'PromptX'}
           </span>
-          {
-            chat.isLoadingText ?
-              <Skeleton>......</Skeleton>
-              :
-              <StreamMarkdown
-                content={chat.text}
-              />
-          }
-
+          {chat.isLoadingText ? (
+            <Skeleton className="font-semibold text-xl">.....</Skeleton>
+          ) : (
+            <StreamMarkdown content={chat.text} />
+          )}
         </div>
       </div>
     ));
   };
   const { handleSubmit, control, reset } = useForm({
     defaultValues: {
-      message: ""
-    }
+      message: '',
+    },
   });
 
   return (
@@ -160,9 +128,7 @@ export const FloatingChatButton: React.FC = () => {
       {isOpen && (
         <div className="floating-chat-container rounded-lg shadow-xl flex flex-col animate-in slide-in-from-bottom-5">
           <div className="flex items-center justify-between border-b rounded-t-lg pb-3">
-            <h3 className="font-semibold">
-              AutomationX
-            </h3>
+            <h3 className="font-semibold">AutomationX</h3>
             <button onClick={toggleChat}>
               <X className="size-5 hover:opacity-75" />
             </button>
@@ -183,10 +149,7 @@ export const FloatingChatButton: React.FC = () => {
               name="message"
               control={control}
               render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder='How can I help you?'
-                />
+                <Input {...field} placeholder="How can I help you?" />
               )}
             />
             <button

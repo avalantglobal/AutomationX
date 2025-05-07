@@ -21,6 +21,10 @@ import { AddRecordIndexForTableIdAndProjectIdAndRecordId1744187975994 } from './
 import { AddMetadataFlowTemplate1744898816545 } from './migration/postgres/1744898816545-add-metadata-flow-template'
 import { AddMcpPiece1744822233873 } from './migration/postgres/1744822233873-AddMcpPiece'
 import { RenameTodoPostiveVariantName1745272231418 } from './migration/postgres/1745272231418-RenameTodoPostiveVariantName'
+import { AddConnectionIdsToFlowVersion1745530653784 } from './migration/postgres/1745530653784-AddConnectionIdsToFlowVersion'
+import { AddExternalIdForTablesAndFields1746356907629 } from './migration/postgres/1746356907629-AddExternalIdForTablesAndFields'
+import { MakeExternalIdNotNullable1746531094548 } from './migration/postgres/1746531094548-MakeExternalIdNotNullable'
+import { ChangeMcpPieceForeignKey1746543299109 } from './migration/postgres/1746543299109-ChangeMcpPieceForeignKey'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(AppSystemProp.POSTGRES_USE_SSL)
@@ -34,6 +38,10 @@ const getSslConfig = (): boolean | TlsOptions => {
 
 const getMigrations = (): (new () => MigrationInterface)[] => {
     const commonMigration: (new () => MigrationInterface)[] = [
+        ChangeMcpPieceForeignKey1746543299109,
+        MakeExternalIdNotNullable1746531094548,
+        AddExternalIdForTablesAndFields1746356907629,
+        AddConnectionIdsToFlowVersion1745530653784,
         RenameTodoPostiveVariantName1745272231418,
         AddMcpPiece1744822233873,
         AddMetadataFlowTemplate1744898816545,

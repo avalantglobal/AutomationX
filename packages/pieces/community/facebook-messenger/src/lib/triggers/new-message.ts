@@ -72,12 +72,14 @@ export const newMessage = createTrigger({
         
         // Verify the token against the one provided in the trigger props
         if (mode === 'subscribe' && token === context.propsValue.verify_token) {
+            console.log('WEBHOOK_VERIFIED');
             return {
                 status: 200,
                 body: challenge,
                 headers: { "Content-Type": "text/plain" }
             };
         } else {
+            console.log('Webhook verification failed');
             return {
                 status: 403,
                 body: 'Verification failed',

@@ -1,44 +1,100 @@
+import { AnalyticsResponse, GetAnalyticsParams, OverviewResponse } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { Type } from '@sinclair/typebox'
 import { StatusCodes } from 'http-status-codes'
 import { analyticsService } from './analytics-service'
 
-export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
-    app.get(
-        '/',
-        {
-            schema: {
-                tags: ['analytics'],
-                description: 'Get analytics data for flow-runs',
-                querystring: Type.Object({
-                    startTimestamp: Type.String({ format: 'date-time' }),
-                    endTimestamp: Type.String({ format: 'date-time' }),
-                }),
-                response: {
-                    [StatusCodes.OK]: Type.Record(
-                        Type.String(), // flowId as string key
-                        Type.Object({
-                            averageRuntime: Type.Number(),
-                            flowRunCount: Type.Number(),
-                            successRate: Type.Number(),
-                            failureRate: Type.Number(),
-                        }),
-                    ),
-                },
-            },
+const ErrorResponse = {
+    type: 'object',
+    properties: {
+        message: { type: 'string' },
+    },
+}
+
+const AnalyticsRequest = {
+    config: {},
+    schema: {
+        tags: ['analytics'],
+        description: 'Get analytics data for flow-runs',
+        querystring: GetAnalyticsParams,
+        response: {
+            [StatusCodes.OK]: AnalyticsResponse,
+            [StatusCodes.BAD_REQUEST]: ErrorResponse,
+            [StatusCodes.INTERNAL_SERVER_ERROR]: ErrorResponse,
         },
-        async (request, reply) => {
-            const { startTimestamp, endTimestamp } = request.query as {
-                startTimestamp: string
-                endTimestamp: string
+    },
+}
+
+const OverviewRequest = {
+    config: {},
+    schema: {
+        tags: ['analytics'],
+        description: 'Get workflow overview statistics',
+        response: {
+            [StatusCodes.OK]: OverviewResponse,
+            [StatusCodes.INTERNAL_SERVER_ERROR]: ErrorResponse,
+        },
+    },
+}
+
+export const analyticsController: FastifyPluginAsyncTypebox = async (app) => {
+    app.get('/flow-performance', AnalyticsRequest, async (request, reply) => {
+        try {
+            const { startDate, endDate } = request.query
+            // Convert timestamps to Date objects for comparison
+            const start = new Date(startDate)
+            const end = new Date(endDate)
+            const currentDateTime = new Date()
+
+            // Validate timestamps
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return await reply.status(StatusCodes.BAD_REQUEST).send({
+                    message: 'Invalid date format. Please provide valid dates.',
+                })
+            }
+
+            // Validate date range
+            if (start.getTime() >= end.getTime()) {
+                return await reply.status(StatusCodes.BAD_REQUEST).send({
+                    message: 'startDate must be less than endDate',
+                })
+            }
+
+            // Validate future dates
+            if (start.getTime() > currentDateTime.getTime() || end.getTime() > currentDateTime.getTime()) {
+                return await reply.status(StatusCodes.BAD_REQUEST).send({
+                    message: 'Dates cannot be in the future',
+                })
             }
 
             const analyticsData = await analyticsService.getAnalyticsData({
-                startTimestamp: new Date(startTimestamp),
-                endTimestamp: new Date(endTimestamp),
+                startDate,
+                endDate,
+                platformId: request.principal.platform.id,
+                userId: request.principal.id,
             })
 
-            await reply.send(analyticsData)
-        },
-    )
+            return await reply.send(analyticsData)
+        }
+        catch (error) {
+            app.log.error('Error fetching analytics data:', error)
+            return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                message: 'An error occurred while fetching analytics data\n' + error,
+            })
+        }
+    })
+    app.get('/overview', OverviewRequest, async (request, reply) => {
+        try {
+            const response = await analyticsService.getOverview({
+                platformId: request.principal.platform.id,
+                userId: request.principal.id,
+            })
+            return await reply.send(response)
+        }
+        catch (error) {
+            app.log.error('Error fetching workflow overview:', error)
+            return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                message: 'An error occurred while fetching analytics data\n' + error,
+            })
+        }
+    })
 }

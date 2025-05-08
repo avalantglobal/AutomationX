@@ -7,14 +7,14 @@ import {
 import { facebookAuth } from '../auth/facebook-auth';
 
 export const pushMessage = createAction({
-  name: 'push_message', // Must be unique across the piece, this shouldn't be changed.
-  auth: facebookAuth, // Define auth directly in this file
+  name: 'push_message',
+  auth: facebookAuth,
   displayName: 'Push Message',
   description: 'Send a message back to the user via Facebook Messenger',
   props: {
     senderId: Property.ShortText({
       displayName: 'Sender PSID',
-      description: 'The PSID of the user to send the message to',
+      description: 'The PSID of the user to send the message to(Sender ID)',
       required: true,
     }),
     text: Property.ShortText({

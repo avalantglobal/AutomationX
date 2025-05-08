@@ -1,6 +1,5 @@
 import { PieceAuth } from '@activepieces/pieces-framework';
 import fetch from 'node-fetch';
-
 export const facebookAuth = PieceAuth.SecretText({
     displayName: 'Page Access Token',
     description: 'Authenticate with Facebook Messenger using a Page Access Token',

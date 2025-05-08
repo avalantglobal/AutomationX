@@ -4,7 +4,6 @@
     import { newMessage } from "./lib/triggers/new-message";
     import { pushMessage } from "./lib/actions/push-message";
     import { facebookAuth } from "./lib/auth/facebook-auth";
-    import crypto from 'node:crypto';
 
     export const facebookMessenger = createPiece({
       displayName: "Facebook-messenger",

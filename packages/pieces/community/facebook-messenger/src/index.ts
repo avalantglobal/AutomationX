@@ -1,5 +1,5 @@
 
-    import { createPiece, PieceAuth } from "@activepieces/pieces-framework";
+    import { createPiece } from "@activepieces/pieces-framework";
     import { PieceCategory } from '@activepieces/shared';
     import { newMessage } from "./lib/triggers/new-message";
     import { pushMessage } from "./lib/actions/push-message";
@@ -16,4 +16,3 @@
       actions: [pushMessage],
       triggers: [newMessage],
     });
-    

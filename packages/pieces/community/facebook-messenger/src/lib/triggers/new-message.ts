@@ -37,9 +37,10 @@ export const newMessage = createTrigger({
         md: Property.MarkDown({
             value: markdown,
         }),
-        verify_token: Property.ShortText({            displayName: 'Verify Token',
-            description: 'The verification token you set in the Facebook webhook settings',
-            required: true,
+        verify_token: Property.ShortText({
+          displayName: 'Verify Token',
+          description: 'The verification token you set in the Facebook webhook settings',
+          required: true,
         }),
     },
     sampleData: {
@@ -73,12 +74,12 @@ export const newMessage = createTrigger({
     },
     async onHandshake(context) {
         const payload = context.payload;
-        
+
         // Get verification parameters from Facebook
         const mode = payload.queryParams['hub.mode'];
         const token = payload.queryParams['hub.verify_token'];
         const challenge = payload.queryParams['hub.challenge'];
-        
+
         // Verify the token against the one provided in the trigger props
         if (mode === 'subscribe' && token === context.propsValue.verify_token) {
             console.log('WEBHOOK_VERIFIED');
@@ -101,22 +102,22 @@ export const newMessage = createTrigger({
         if (!body || body.object !== 'page') {
             return [];
         }
-        
+
         const messages = [];
-        
+
         try {
             // Get the most recent timestamp we've processed
             const lastTimestamp = Number(await context.store.get<string>('last_processed_timestamp')) || 0;
             let newestTimestamp = lastTimestamp;
-            
+
             // Process each entry and messaging event
             for (const entry of body.entry) {
                 if (entry.messaging) {
                     for (const messagingEvent of entry.messaging) {
                         // Only process if the message has a newer timestamp
                         if (
-                            messagingEvent.message && 
-                            messagingEvent.timestamp && 
+                            messagingEvent.message &&
+                            messagingEvent.timestamp &&
                             messagingEvent.timestamp > lastTimestamp
                         ) {
                             // Add to output array
@@ -126,7 +127,7 @@ export const newMessage = createTrigger({
                                 timestamp: messagingEvent.timestamp,
                                 message: messagingEvent.message
                             });
-                            
+
                             // Track the newest timestamp we've seen
                             if (messagingEvent.timestamp > newestTimestamp) {
                                 newestTimestamp = messagingEvent.timestamp;
@@ -135,12 +136,12 @@ export const newMessage = createTrigger({
                     }
                 }
             }
-            
+
             // Store the newest timestamp for future deduplication
             if (newestTimestamp > lastTimestamp) {
                 await context.store.put('last_processed_timestamp', newestTimestamp.toString());
             }
-            
+
             console.log(`Processed ${messages.length} new messages`);
             return messages;
         } catch (error) {

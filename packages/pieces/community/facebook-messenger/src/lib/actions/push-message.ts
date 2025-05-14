@@ -1,4 +1,4 @@
-import { Property, createAction,PieceAuth } from '@activepieces/pieces-framework';
+import { Property, createAction } from '@activepieces/pieces-framework';
 import {
   HttpMethod,
   httpClient,

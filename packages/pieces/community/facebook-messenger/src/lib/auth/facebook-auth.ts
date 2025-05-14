@@ -4,6 +4,7 @@ import {
     HttpMethod,
     httpClient,
   } from '@activepieces/pieces-common';
+
 export const facebookAuth = PieceAuth.SecretText({
     displayName: 'Page Access Token',
     description: 'Authenticate with Facebook Messenger using a Page Access Token',

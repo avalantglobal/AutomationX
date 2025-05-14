@@ -20,39 +20,37 @@ export const analyticsService = {
     async getAnalyticsData(params: GetAnalyticsDataParams): Promise<AnalyticsResponse> {
         const { startDate, endDate, platformId, userId } = params
         const projectIds = await getProjectIds(platformId, userId)
-        // Removed unused variable projectIds
         const query = flowRunRepo()
             .createQueryBuilder('flowRun')
-            .andWhere('flowRun.projectId IN (:...projectIds)')
-            .andWhere('DATE(flowRun.finishTime) BETWEEN :start AND :end', {
-                start: startDate,
-                end: endDate,
-            })
-            .addSelect('flowRun.projectId', 'projectId')
+            .where('flowRun.projectId IN (:...projectIds)') // Changed first andWhere to where
+            .andWhere('flowRun.finishTime >= :startDate AND flowRun.finishTime <= :endDate') // Better for index usage
+            .select('flowRun.projectId', 'projectId')
             .addSelect('DATE(flowRun.finishTime)', 'date')
             .addSelect('COUNT(*)', 'totalFlowRuns')
             .addSelect(
-                'SUM(CASE WHEN flowRun.status = :successStatus THEN 1 END)',
+                'SUM(CASE WHEN flowRun.status = :successStatus THEN 1 ELSE 0 END)',
                 'successfulFlowRuns',
             )
             .addSelect(
-                'SUM(CASE WHEN flowRun.status = :failureStatus THEN 1 END)',
+                'SUM(CASE WHEN flowRun.status = :failureStatus THEN 1 ELSE 0 END)',
                 'failedFlowRuns',
             )
             .addSelect(
-                'SUM(CASE WHEN flowRun.status = :successStatus THEN flowRun.duration END)',
+                'SUM(CASE WHEN flowRun.status = :successStatus THEN flowRun.duration ELSE 0 END)',
                 'successfulFlowRunsDuration',
             )
             .addSelect(
-                'SUM(CASE WHEN flowRun.status = :failureStatus THEN flowRun.duration END)',
+                'SUM(CASE WHEN flowRun.status = :failureStatus THEN flowRun.duration ELSE 0 END)',
                 'failedFlowRunsDuration',
             )
             .setParameters({
                 successStatus: FlowRunStatus.SUCCEEDED,
                 failureStatus: FlowRunStatus.FAILED,
                 projectIds,
+                startDate: startDate,
+                endDate: endDate,
             })
-            .groupBy('"projectId", "date"')
+            .groupBy('flowRun.projectId, DATE(flowRun.finishTime)')
             .orderBy('date', 'ASC')
 
         const rawResults = await query.getRawMany()
@@ -76,32 +74,35 @@ export const analyticsService = {
         const { platformId, userId } = params
         const projectIds = await getProjectIds(platformId, userId)
 
-        const result = await flowRepo()
+        // Query 1: Get workflow counts
+        const workflowResult = await flowRepo()
             .createQueryBuilder('flow')
-            .addSelect('COUNT(flow.id)', 'workflowCount')
+            .addSelect('COUNT(*)', 'workflowCount')
             .addSelect(
                 'SUM(CASE WHEN flow.status = :enabledStatus THEN 1 END)',
                 'activeWorkflowCount',
             )
-            .addSelect(
-                `(SELECT COUNT(*) FROM flow_run "flowRun"
-                WHERE "flowRun"."projectId" IN (:...projectIds)
-                AND DATE("flowRun"."finishTime") BETWEEN :start AND :end)`,
-                'flowRunCount',
-            )
             .where('flow.projectId IN (:...projectIds)', { projectIds })
-            .setParameters({ enabledStatus: FlowStatus.ENABLED, start, end })
+            .setParameters({ enabledStatus: FlowStatus.ENABLED })
+            .getRawOne()
+
+        // Query 2: Get flow run counts directly
+        const flowRunResult = await flowRunRepo()
+            .createQueryBuilder('flowRun')
+            .select('COUNT(*)', 'flowRunCount')
+            .where('flowRun.projectId IN (:...projectIds)', { projectIds })
+            .andWhere('DATE(flowRun.finishTime) BETWEEN :start AND :end', { start, end })
             .getRawOne()
 
         return {
-            workflowCount: Number(result.workflowCount),
-            activeWorkflowCount: Number(result.activeWorkflowCount),
-            flowRunCount: Number(result.flowRunCount),
+            workflowCount: Number(workflowResult.workflowCount),
+            activeWorkflowCount: Number(workflowResult.activeWorkflowCount),
+            flowRunCount: Number(flowRunResult.flowRunCount),
         }
     },
 }
 
-async function getProjectIds(platformId: string, userId: string ): Promise<string[]> {
+async function getProjectIds(platformId: string, userId: string): Promise<string[]> {
     const result = await projectService.getAllForUser({
         platformId,
         userId,

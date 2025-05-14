@@ -77,7 +77,7 @@ export const analyticsService = {
         // Query 1: Get workflow counts
         const workflowResult = await flowRepo()
             .createQueryBuilder('flow')
-            .addSelect('COUNT(*)', 'workflowCount')
+            .addSelect('COUNT(flow.id)', 'workflowCount')
             .addSelect(
                 'SUM(CASE WHEN flow.status = :enabledStatus THEN 1 END)',
                 'activeWorkflowCount',
@@ -85,11 +85,12 @@ export const analyticsService = {
             .where('flow.projectId IN (:...projectIds)', { projectIds })
             .setParameters({ enabledStatus: FlowStatus.ENABLED })
             .getRawOne()
+            
 
         // Query 2: Get flow run counts directly
         const flowRunResult = await flowRunRepo()
             .createQueryBuilder('flowRun')
-            .select('COUNT(*)', 'flowRunCount')
+            .select('COUNT(flowRun.id)', 'flowRunCount')
             .where('flowRun.projectId IN (:...projectIds)', { projectIds })
             .andWhere('DATE(flowRun.finishTime) BETWEEN :start AND :end', { start, end })
             .getRawOne()

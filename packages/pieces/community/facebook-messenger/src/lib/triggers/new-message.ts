@@ -12,7 +12,7 @@ const markdown = `
 5. Connect your Facebook page if not already connected
 6. Click "Generate Token" and confirm when prompted
 7. Copy the generated token - this is your Page Access Token
-8. Paste the token into the **Page Access Token** field in Activepieces
+8. Paste the token into the **Page Access Token** field in AutomationX
 \n
 ### Step 2: Set Up Facebook Messenger Webhook
 
@@ -21,7 +21,7 @@ const markdown = `
 3. For the **Callback URL**, paste: \n
    **\`{{webhookUrl}}/sync\`** \n
 4. For Verify Token, enter the same value you set in the field below
-5. Publish your Activepieces flow first, then click "Verify and Save" in Facebook
+5. Publish your AutomationX flow first, then click "Verify and Save" in Facebook
 6. Under webhook subscriptions, select : 'messages' and 'messaging_postbacks'
 7. Click "Save" to complete the webhook setup
 

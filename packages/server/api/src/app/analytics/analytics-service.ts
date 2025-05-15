@@ -47,8 +47,8 @@ export const analyticsService = {
                 successStatus: FlowRunStatus.SUCCEEDED,
                 failureStatus: FlowRunStatus.FAILED,
                 projectIds,
-                startDate: startDate,
-                endDate: endDate,
+                startDate,
+                endDate,
             })
             .groupBy('flowRun.projectId, DATE(flowRun.finishTime)')
             .orderBy('date', 'ASC')
@@ -80,10 +80,10 @@ export const analyticsService = {
             .createQueryBuilder('flow')
             .select('COUNT(flow.id)', 'workflowCount')
             .addSelect(
-            'SUM(CASE WHEN flow.status = :enabledStatus THEN 1 ELSE 0 END)',
-            'activeWorkflowCount',
+                'SUM(CASE WHEN flow.status = :enabledStatus THEN 1 ELSE 0 END)',
+                'activeWorkflowCount',
             )
-            .where('flow.projectId = ANY(:projectIds)', { projectIds }) // PostgreSQL specific ANY syntax
+            .where('flow.projectId = ANY(:projectIds)', { projectIds })
             .setParameters({ enabledStatus: FlowStatus.ENABLED, projectIds })
             .getRawOne()
 
@@ -92,8 +92,8 @@ export const analyticsService = {
         const flowRunResult = await flowRunRepo()
             .createQueryBuilder('flowRun')
             .select('COUNT(flowRun.id)', 'flowRunCount')
-            .where('flowRun.projectId = ANY(:projectIds)', { projectIds }) // PostgreSQL ANY syntax for better performance
-            .andWhere('"flowRun"."finishTime"::date BETWEEN :start::date AND :end::date') // Type casting for better index usage
+            .where('flowRun.projectId = ANY(:projectIds)', { projectIds })
+            .andWhere('"flowRun"."finishTime"::date BETWEEN :start::date AND :end::date')
             .setParameters({ projectIds, start, end })
             .getRawOne()
 

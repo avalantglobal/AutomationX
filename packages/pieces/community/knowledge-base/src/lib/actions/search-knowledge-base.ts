@@ -1,6 +1,6 @@
-import { createAction, PieceAuth, Property } from '@activepieces/pieces-framework';
+import { createAction, Property } from '@activepieces/pieces-framework';
 import axios, { AxiosError } from 'axios';
-import { knowledgeBaseAuth, Production, Test } from '../..';
+import { knowledgeBaseAuth, Test } from '../..';
 
 export const getMasterData = async (auth: any) => {
   try {

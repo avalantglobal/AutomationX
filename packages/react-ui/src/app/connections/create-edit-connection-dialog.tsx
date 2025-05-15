@@ -69,7 +69,7 @@ type ConnectionDialogProps = {
   open: boolean;
   setOpen: (
     open: boolean,
-    connection?: AppConnectionWithoutSensitiveData,
+    connection?: AppConnectionWithoutSensitiveData
   ) => void;
   reconnectConnection: AppConnectionWithoutSensitiveData | null;
   isGlobalConnection: boolean;
@@ -90,7 +90,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
     externalIdComingFromSdk?: string | null;
     setOpen: (
       open: boolean,
-      connection?: AppConnectionWithoutSensitiveData,
+      connection?: AppConnectionWithoutSensitiveData
     ) => void;
   }) => {
     const { auth } = piece;
@@ -98,7 +98,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
     const { externalId, displayName } = newConnectionUtils.getConnectionName(
       piece,
       reconnectConnection,
-      externalIdComingFromSdk,
+      externalIdComingFromSdk
     );
     const form = useForm<{
       request: UpsertAppConnectionRequestBody & {
@@ -110,7 +110,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
           ...newConnectionUtils.createDefaultValues(
             piece,
             externalId,
-            displayName,
+            displayName
           ),
           projectIds: reconnectConnection?.projectIds ?? [],
         },
@@ -131,7 +131,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
         const formValues = form.getValues().request;
         const isNameUnique = await isConnectionNameUnique(
           isGlobalConnection,
-          formValues.displayName,
+          formValues.displayName
         );
         if (
           !isNameUnique &&
@@ -171,8 +171,8 @@ const CreateOrEditConnectionDialogContent = React.memo(
             case ErrorCode.INVALID_CLOUD_CLAIM: {
               setErrorMessage(
                 t(
-                  'Could not claim the authorization code, make sure you have correct settings and try again.',
-                ),
+                  'Could not claim the authorization code, make sure you have correct settings and try again.'
+                )
               );
               break;
             }
@@ -180,14 +180,14 @@ const CreateOrEditConnectionDialogContent = React.memo(
               setErrorMessage(
                 t('Connection failed with error {msg}', {
                   msg: apError.params.error,
-                }),
+                })
               );
               break;
             }
             // can happen in embedding sdk connect method
             case ErrorCode.PERMISSION_DENIED: {
               setErrorMessage(
-                t(`You don't have the permission to create a connection.`),
+                t(`You don't have the permission to create a connection.`)
               );
               break;
             }
@@ -206,16 +206,21 @@ const CreateOrEditConnectionDialogContent = React.memo(
           <DialogTitle>
             {reconnectConnection
               ? t('Reconnect {displayName} Connection', {
-                displayName: reconnectConnection.displayName,
-              })
+                  displayName: reconnectConnection.displayName,
+                })
               : t('Connect to {displayName}', {
-                displayName: piece.displayName,
-              })}
+                  displayName: piece.displayName,
+                })}
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-full">
-          <ApMarkdown markdown={auth?.description?.replaceAll("https://cloud.activepieces.com/redirect", "https://wf.promptxai.com/redirect")}></ApMarkdown>
+          <ApMarkdown
+            markdown={auth?.description?.replaceAll(
+              'https://cloud.activepieces.com/redirect',
+              'https://wf.promptxai.com/redirect'
+            )}
+          ></ApMarkdown>
           {auth?.description && <Separator className="my-4" />}
           <Form {...form}>
             <form
@@ -224,28 +229,28 @@ const CreateOrEditConnectionDialogContent = React.memo(
             >
               {(isNil(externalIdComingFromSdk) ||
                 externalIdComingFromSdk === '') && (
-                  <FormField
-                    name="request.displayName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel htmlFor="displayName">
-                          {t('Connection Name')}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            id="displayName"
-                            type="text"
-                            placeholder={t('Connection name')}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  ></FormField>
-                )}
+                <FormField
+                  name="request.displayName"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-2">
+                      <FormLabel htmlFor="displayName">
+                        {t('Connection Name')}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          required
+                          id="displayName"
+                          type="text"
+                          placeholder={t('Connection name')}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                ></FormField>
+              )}
 
               {isGlobalConnection && (
                 <AssignConnectionToProjectsControl
@@ -304,7 +309,7 @@ const CreateOrEditConnectionDialogContent = React.memo(
         )}
       </>
     );
-  },
+  }
 );
 
 CreateOrEditConnectionDialogContent.displayName =
@@ -339,7 +344,7 @@ const CreateOrEditConnectionDialog = React.memo(
         </DialogContent>
       </Dialog>
     );
-  },
+  }
 );
 
 CreateOrEditConnectionDialog.displayName = 'CreateOrEditConnectionDialog';

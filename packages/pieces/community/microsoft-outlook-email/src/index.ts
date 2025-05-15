@@ -7,7 +7,11 @@ export const outlookEmailAuth = PieceAuth.OAuth2({
   authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
   tokenUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
   required: true,
-  scope: ['https://graph.microsoft.com/Mail.Read', "https://graph.microsoft.com/Mail.Send",'offline_access'],
+  scope: [
+    'https://graph.microsoft.com/Mail.Read',
+    'https://graph.microsoft.com/Mail.Send',
+    'offline_access',
+  ],
 });
 export const microsoftOutlookEmail = createPiece({
   displayName: 'Microsoft Outlook Email',

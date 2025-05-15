@@ -44,6 +44,7 @@ import {
 } from '@activepieces/pieces-framework';
 import {
   ApErrorParams,
+  ApFlagId,
   AppConnectionScope,
   AppConnectionWithoutSensitiveData,
   ErrorCode,
@@ -63,6 +64,7 @@ import { BasicAuthConnectionSettings } from './basic-secret-connection-settings'
 import { CustomAuthConnectionSettings } from './custom-auth-connection-settings';
 import { OAuth2ConnectionSettings } from './oauth2-connection-settings';
 import { SecretTextConnectionSettings } from './secret-text-connection-settings';
+import { flagsHooks } from '@/hooks/flags-hooks';
 
 type ConnectionDialogProps = {
   piece: PieceMetadataModelSummary | PieceMetadataModel;
@@ -100,6 +102,9 @@ const CreateOrEditConnectionDialogContent = React.memo(
       reconnectConnection,
       externalIdComingFromSdk
     );
+    const { data: thirdPartyUrl } = flagsHooks.useFlag<string>(
+        ApFlagId.THIRD_PARTY_AUTH_PROVIDER_REDIRECT_URL,
+      );
     const form = useForm<{
       request: UpsertAppConnectionRequestBody & {
         projectIds: string[];
@@ -218,9 +223,9 @@ const CreateOrEditConnectionDialogContent = React.memo(
           <ApMarkdown
             markdown={auth?.description?.replaceAll(
               'https://cloud.activepieces.com/redirect',
-              'https://wf.promptxai.com/redirect'
+              thirdPartyUrl ?? ""
             )}
-          ></ApMarkdown>
+          />
           {auth?.description && <Separator className="my-4" />}
           <Form {...form}>
             <form

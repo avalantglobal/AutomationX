@@ -206,16 +206,16 @@ const CreateOrEditConnectionDialogContent = React.memo(
           <DialogTitle>
             {reconnectConnection
               ? t('Reconnect {displayName} Connection', {
-                  displayName: reconnectConnection.displayName,
-                })
+                displayName: reconnectConnection.displayName,
+              })
               : t('Connect to {displayName}', {
-                  displayName: piece.displayName,
-                })}
+                displayName: piece.displayName,
+              })}
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-full">
-          <ApMarkdown markdown={auth?.description}></ApMarkdown>
+          <ApMarkdown markdown={auth?.description?.replaceAll("https://cloud.activepieces.com/redirect", "https://wf.promptxai.com/redirect")}></ApMarkdown>
           {auth?.description && <Separator className="my-4" />}
           <Form {...form}>
             <form
@@ -224,28 +224,28 @@ const CreateOrEditConnectionDialogContent = React.memo(
             >
               {(isNil(externalIdComingFromSdk) ||
                 externalIdComingFromSdk === '') && (
-                <FormField
-                  name="request.displayName"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col gap-2">
-                      <FormLabel htmlFor="displayName">
-                        {t('Connection Name')}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          required
-                          id="displayName"
-                          type="text"
-                          placeholder={t('Connection name')}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                ></FormField>
-              )}
+                  <FormField
+                    name="request.displayName"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel htmlFor="displayName">
+                          {t('Connection Name')}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            required
+                            id="displayName"
+                            type="text"
+                            placeholder={t('Connection name')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  ></FormField>
+                )}
 
               {isGlobalConnection && (
                 <AssignConnectionToProjectsControl

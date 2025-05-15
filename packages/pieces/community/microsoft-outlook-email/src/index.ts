@@ -15,6 +15,7 @@ export const outlookEmailAuth = PieceAuth.OAuth2({
 });
 export const microsoftOutlookEmail = createPiece({
   displayName: 'Microsoft Outlook Email',
+  description: 'Email service by Microsoft Outlook',
   auth: outlookEmailAuth,
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/microsoft-outlook.png',

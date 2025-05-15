@@ -1,18 +1,10 @@
-import {
-  createTrigger,
-  TriggerStrategy,
-  PiecePropValueSchema
-} from '@activepieces/pieces-framework';
+import { createTrigger, TriggerStrategy } from '@activepieces/pieces-framework';
 import {
   AuthenticationType,
-  DedupeStrategy,
   httpClient,
   HttpMethod,
   HttpRequest,
-  Polling,
-  pollingHelper,
 } from '@activepieces/pieces-common';
-import dayjs from 'dayjs';
 import { outlookEmailAuth } from '../..';
 
 export const newEmailTrigger = createTrigger({
@@ -20,7 +12,7 @@ export const newEmailTrigger = createTrigger({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
   name: 'new-email',
   displayName: 'New Email',
-  description: 'Trigger when new emmail is found in outlook mail box',
+  description: 'Trigger when new email is found in outlook mail box',
   props: {},
   sampleData: {
     id: 'email-id',

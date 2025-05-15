@@ -27,10 +27,6 @@ export const sendEmail = createAction({
       displayName: 'Attachments',
       description: 'Files to attach to the email you want to send',
       required: false,
-      // items: Property.File({
-      //   displayName: "Attachment",
-      //   description: "Select a file to attach",
-      // })
     }),
   },
   async run(context) {

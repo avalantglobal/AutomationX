@@ -45,13 +45,11 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
   );
   const branding = flagsHooks.useWebsiteBranding();
-
   useEffect(() => {
     if (!branding) {
       console.warn('Website brand is not defined');
       return;
     }
-    console.log('Branding', branding.colors);
     const root = window.document.documentElement;
 
     const resolvedTheme = theme === 'system' ? 'light' : theme;

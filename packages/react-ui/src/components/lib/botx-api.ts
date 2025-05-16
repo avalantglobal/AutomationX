@@ -1,51 +1,50 @@
-import { api } from '@/lib/api';
-import { ChatBotxJwtRequest, ChatRequest } from '../dto/botx-req';
 import {
-  ChatBotxJwtResponse,
-  ChatResponse,
-  ChatUserMessagesReqsponse,
-} from '../dto/botx-res';
-import { authenticationSession } from '@/lib/authentication-session';
-interface EnvConfig {
-  BOTX_API_URL: string;
-  REACT_APP_ZERO_URL: string;
-}
-// Extend the Window interface
-declare global {
-  interface Window {
-    env: EnvConfig;
-  }
-}
+  ChatBotxRequest,
+  ChatBotxResponse,
+  ChatBotxToken,
+  ChatBotxTokenResponse,
+  ChatBotxUserMessage,
+  isNil,
+} from '@activepieces/shared';
 
-const BOTX_API_URL = window['env'].BOTX_API_URL;
-const REACT_APP_ZERO_URL = window['env'].REACT_APP_ZERO_URL;
-export const botxApi = {
-  sendMessage(request: ChatRequest): Promise<ChatResponse> {
-    return api.post<ChatResponse>(
+import { api } from '@/lib/api';
+import { authenticationSession } from '@/lib/authentication-session';
+
+type BotxApiParams = {
+  BOTX_API_URL?: string | null;
+  ZERO_API_URL?: string | null;
+};
+
+export const botxApi = ({ BOTX_API_URL, ZERO_API_URL }: BotxApiParams) => ({
+  sendMessage(request: ChatBotxRequest): Promise<ChatBotxResponse> {
+    if (isNil(BOTX_API_URL)) return Promise.reject('invalid bot URL');
+    return api.post<ChatBotxResponse>(
       `${BOTX_API_URL}/v1/chat/sse`,
       request,
       null,
       {
         Authorization: `Bearer ${authenticationSession.getBotxToken()}`,
-      }
+      },
     );
   },
 
-  getLastUserChatMessages(request?: any): Promise<ChatUserMessagesReqsponse[]> {
-    return api.get<ChatUserMessagesReqsponse[]>(
+  getLastUserChatMessages(): Promise<ChatBotxUserMessage[]> {
+    if (isNil(BOTX_API_URL)) return Promise.reject('invalid bot URL');
+    return api.get<ChatBotxUserMessage[]>(
       `${BOTX_API_URL}/v1/chat`,
       '',
       undefined,
       {
         Authorization: `Bearer ${authenticationSession.getBotxToken()}`,
-      }
+      },
     );
   },
 
-  getSignBotxJwt(request: ChatBotxJwtRequest): Promise<ChatBotxJwtResponse> {
-    return api.post<ChatBotxJwtResponse>(
-      `${REACT_APP_ZERO_URL}/pmtx/sign-jwt-botx`,
-      request
+  getSignBotxJwt(request: ChatBotxToken): Promise<ChatBotxTokenResponse> {
+    if (isNil(ZERO_API_URL)) return Promise.reject('invalid zero service URL');
+    return api.post<ChatBotxTokenResponse>(
+      `${ZERO_API_URL}/pmtx/sign-jwt-botx`,
+      request,
     );
   },
-};
+});

@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronsLeftRight, Send, X } from 'lucide-react';
-//todo(hk) commented out quill for now
-// import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { ApFlagId } from '@activepieces/shared';
 import './FloatingChatButton.css';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { t } from 'i18next';
+import { useForm, Controller } from 'react-hook-form';
+
+import { flagsHooks } from '../../hooks/flags-hooks';
+import { useEmbedding } from '../embed-provider';
+import { botxApi } from '../lib/botx-api';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { AvatarLetter } from '../ui/avatar-letter';
-import { useEmbedding } from '../embed-provider';
-import { userHooks } from '@/hooks/user-hooks';
-import { botxApi } from '../lib/botx-api';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useForm, Controller } from 'react-hook-form';
-import { t } from 'i18next';
-import StreamMarkdown from './StreamMarkdown';
-import { flagsHooks } from '../../hooks/flags-hooks';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
+
+import StreamMarkdown from './StreamMarkdown';
+
+import { userHooks } from '@/hooks/user-hooks';
 
 export const modulesChat = {
   toolbar: [
@@ -31,9 +32,6 @@ export const FloatingChatButton: React.FC = () => {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const { embedState } = useEmbedding();
   const { data: user } = userHooks.useCurrentUser();
-  if (!user || embedState.isEmbedded) {
-    return null;
-  }
   const [isOpen, setIsOpen] = useState(false);
   const branding = flagsHooks.useWebsiteBranding();
   const [chatHistory, setChatHistory] = useState<
@@ -44,23 +42,27 @@ export const FloatingChatButton: React.FC = () => {
       showStreamText?: boolean;
     }[]
   >([]);
+  const { data: BOTX_API_URL } = flagsHooks.useFlag<string>(ApFlagId.BOTX_URL);
+
+  const botxApiUrls = botxApi({ BOTX_API_URL });
 
   const { mutate, data, isSuccess, isError, error } = useMutation({
-    mutationFn: (message: string) => botxApi.sendMessage({ message }),
+    mutationFn: (message: string) => botxApiUrls.sendMessage({ message }),
   });
 
-  const {
-    data: userLastMessages,
-    error: userMessageError,
-    isLoading,
-    isSuccess: isUserMessageSuccess,
-  } = useQuery({
+  const { data: userLastMessages, isSuccess: isUserMessageSuccess } = useQuery({
     queryKey: ['user-messages'],
-    queryFn: botxApi.getLastUserChatMessages,
+    queryFn: botxApiUrls.getLastUserChatMessages,
     enabled: isOpen && !!user,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
+  });
+
+  const { handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      message: '',
+    },
   });
 
   const toggleChat = () => setIsOpen(!isOpen);
@@ -84,7 +86,7 @@ export const FloatingChatButton: React.FC = () => {
       ]);
       reset();
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, reset]);
 
   useEffect(() => {
     if (isError) {
@@ -98,7 +100,7 @@ export const FloatingChatButton: React.FC = () => {
   useEffect(() => {
     if (isUserMessageSuccess) {
       // not to show stream text style for history messages
-      let chatHistory = userLastMessages.map((m) => ({
+      const chatHistory = userLastMessages.map((m) => ({
         text: m.content,
         sender: m.speaker,
         showStreamText: false,
@@ -113,6 +115,10 @@ export const FloatingChatButton: React.FC = () => {
         chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+  if (!user || embedState.isEmbedded) {
+    return null;
+  }
 
   const renderChatMessages = () => {
     return chatHistory.map((chat, index) => (
@@ -152,11 +158,6 @@ export const FloatingChatButton: React.FC = () => {
       </div>
     ));
   };
-  const { handleSubmit, control, reset } = useForm({
-    defaultValues: {
-      message: '',
-    },
-  });
 
   return (
     <>

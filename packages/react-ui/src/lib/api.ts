@@ -53,12 +53,12 @@ function globalErrorHandler(error: AxiosError) {
 
 function request<TResponse>(
   url: string,
-  config: AxiosRequestConfig = {}
+  config: AxiosRequestConfig = {},
 ): Promise<TResponse> {
   const resolvedUrl = !isUrlRelative(url) ? url : `${API_URL}${url}`;
   const isApWebsite = resolvedUrl.startsWith(API_URL);
   const unAuthenticated = disallowedRoutes.some((route) =>
-    url.startsWith(route)
+    url.startsWith(route),
   );
   return axios({
     url: resolvedUrl,
@@ -75,7 +75,7 @@ function request<TResponse>(
     .then((response) =>
       config.responseType === 'blob'
         ? response.data
-        : (response.data as TResponse)
+        : (response.data as TResponse),
     )
     .catch((error) => {
       if (
@@ -94,11 +94,13 @@ export const api = {
   isError(error: unknown): error is HttpError {
     return isAxiosError(error);
   },
+  any: <TResponse>(url: string, config?: AxiosRequestConfig) =>
+    request<TResponse>(url, config),
   get: <TResponse>(
     url: string,
     query?: unknown,
     config?: AxiosRequestConfig,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ) =>
     request<TResponse>(url, {
       params: query,
@@ -113,7 +115,7 @@ export const api = {
   delete: <TResponse>(
     url: string,
     query?: Record<string, string>,
-    body?: unknown
+    body?: unknown,
   ) =>
     request<TResponse>(url, {
       method: 'DELETE',
@@ -129,7 +131,7 @@ export const api = {
     url: string,
     body?: TBody,
     params?: TParams,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ) =>
     request<TResponse>(url, {
       method: 'POST',
@@ -141,7 +143,7 @@ export const api = {
   patch: <TResponse, TBody = unknown, TParams = unknown>(
     url: string,
     body?: TBody,
-    params?: TParams
+    params?: TParams,
   ) =>
     request<TResponse>(url, {
       method: 'PATCH',

@@ -22,7 +22,7 @@ export const formatUtils = {
     return words
       .map(
         (word) =>
-          word.charAt(0).toUpperCase() + word.slice(1).toLocaleLowerCase(),
+          word.charAt(0).toUpperCase() + word.slice(1).toLocaleLowerCase()
       )
       .join(' ');
   },
@@ -136,7 +136,7 @@ export const formatUtils = {
 
 export const validationUtils = {
   isValidationError: (
-    error: unknown,
+    error: unknown
   ): error is AxiosError<{ code?: string; params?: { message?: string } }> => {
     console.error('isValidationError', error);
     return (
@@ -213,7 +213,7 @@ export const isStepFileUrl = (json: unknown): json is string => {
 
 export const useTimeAgo = (date: Date) => {
   const [timeAgo, setTimeAgo] = useState(() =>
-    formatUtils.formatDateToAgo(date),
+    formatUtils.formatDateToAgo(date)
   );
 
   useEffect(() => {
@@ -243,7 +243,7 @@ export const useTimeAgo = (date: Date) => {
 };
 
 export const determineDefaultRoute = (
-  checkAccess: (permission: Permission) => boolean,
+  checkAccess: (permission: Permission) => boolean
 ) => {
   if (checkAccess(Permission.READ_FLOW)) {
     return authenticationSession.appendProjectRoutePrefix('/flows');
@@ -327,4 +327,20 @@ export const downloadFile = async ({
 
 export const wait = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export interface SplitCodeText {
+  text: string;
+  isCodeBlock: boolean;
+}
+
+export const splitMarkdownByCodeBlocks = (text: string): SplitCodeText[] => {
+  const regex = /(```[\s\S]*?```)/g;
+  return text
+    .split(regex)
+    .filter((part) => part.trim() !== '')
+    .map((part) => ({
+      text: part,
+      isCodeBlock: part.includes('```'),
+    }));
 };

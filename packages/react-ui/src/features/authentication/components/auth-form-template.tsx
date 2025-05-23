@@ -115,7 +115,7 @@ const AuthFormTemplate = React.memo(
 
     useEffect(() => {
       // For non-dev environments, we'd like to login via external screen
-      if (environment !== 'dev' && !isNil(loginUrl)) {
+      if (environment !== 'dev' && !(isNil(loginUrl) || loginUrl.trim().length === 0)) {
         const timer = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
@@ -132,7 +132,7 @@ const AuthFormTemplate = React.memo(
     }, []);
 
     // will redirect to promptX login page
-    if (environment !== 'dev' && !isNil(loginUrl)) {
+    if (environment !== 'dev' && !(isNil(loginUrl) || loginUrl.trim().length === 0)) {
       return (
         <div className="flex justify-center items-center h-500">
           <p className="text-lg font-semibold text-gray-700 mb-4">
@@ -171,8 +171,10 @@ const AuthFormTemplate = React.memo(
             )
           ) : null}
         </CardContent>
-
-        <BottomNote isSignup={isSignUp}></BottomNote>
+        {/* 
+         * todo(htookyaw) hide sign in/sign up note
+         */}
+        {/* <BottomNote isSignup={isSignUp}></BottomNote> */}
       </Card>
     );
   },

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronsLeftRight, Send, X } from 'lucide-react';
-import { ApFlagId } from '@activepieces/shared';
+import { ApFlagId, isNil } from '@activepieces/shared';
 import './FloatingChatButton.css';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { t } from 'i18next';
@@ -116,7 +116,7 @@ export const FloatingChatButton: React.FC = () => {
     }
   }, [chatHistory]);
 
-  if (!user || embedState.isEmbedded) {
+  if (!user || embedState.isEmbedded || isNil(BOTX_API_URL) || BOTX_API_URL.trim().length === 0) {
     return null;
   }
 

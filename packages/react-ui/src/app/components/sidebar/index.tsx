@@ -35,7 +35,7 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
-import { ApEdition, ApFlagId, Permission } from '@activepieces/shared';
+import { ApEdition, ApFlagId, isNil, Permission } from '@activepieces/shared';
 
 import { ShowPoweredBy } from '../../../components/show-powered-by';
 import { platformHooks } from '../../../hooks/platform-hooks';
@@ -45,7 +45,7 @@ import { HelpAndFeedback } from '../help-and-feedback';
 import { SidebarInviteUserButton } from './sidebar-invite-user';
 import { SidebarPlatformAdminButton } from './sidebar-platform-admin';
 import { SidebarUser } from './sidebar-user';
-import UsageLimitsButton from './usage-limits-button';
+import UsageLimitsButton from './usage-limits-button';  
 
 type Link = {
   icon: React.ReactNode;
@@ -93,9 +93,8 @@ export const CustomTooltipLink = ({
         )}
       >
         <div
-          className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 ${
-            !Icon ? 'p-2' : ''
-          }`}
+          className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 ${!Icon ? 'p-2' : ''
+            }`}
         >
           <div className="flex items-center gap-2 justify-between w-full">
             <div className="flex items-center gap-2">
@@ -177,12 +176,13 @@ export function SidebarComponent({
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
   const location = useLocation();
   const { checkAccess } = useAuthorization();
-
+  const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
   const showProjectUsage =
     location.pathname.startsWith('/project') && edition !== ApEdition.COMMUNITY;
   const showConnectionsLink =
     location.pathname.startsWith('/project') &&
     checkAccess(Permission.READ_APP_CONNECTION);
+  const isExternalLogin = !(isNil(loginUrl) || loginUrl.trim().length === 0);
 
   return (
     <div className="flex min-h-screen w-full">
@@ -232,8 +232,8 @@ export function SidebarComponent({
                   </SidebarGroup>
                 </ScrollArea>
               </SidebarContent>
-              {/* <SidebarFooter className="pb-4">
-                <SidebarMenu>
+              <SidebarFooter className="pb-4">
+                {/* <SidebarMenu>
                   <SidebarInviteUserButton />
                 </SidebarMenu>
                 <SidebarMenu>
@@ -245,9 +245,9 @@ export function SidebarComponent({
                     <UsageLimitsButton />
                   </SidebarMenu>
                 )}
-                {showProjectUsage && <Separator />}
-                <SidebarUser />
-              </SidebarFooter> */}
+                {showProjectUsage && <Separator />} */}
+                {!isExternalLogin && <SidebarUser />}
+              </SidebarFooter>
             </SidebarContent>
           </Sidebar>
         )}

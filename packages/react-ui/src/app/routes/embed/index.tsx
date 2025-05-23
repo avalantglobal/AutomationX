@@ -55,6 +55,7 @@ const EmbedPage = React.memo(() => {
               authenticationSession.saveResponse(data, true);
               const initialRoute = event.data.data.initialRoute ?? '/';
               setEmbedState({
+                ...embedState,
                 hideSideNav: event.data.data.hideSidebar,
                 isEmbedded: true,
                 hideLogoInBuilder: event.data.data.hideLogoInBuilder ?? false,
@@ -91,7 +92,7 @@ const EmbedPage = React.memo(() => {
               };
               parentWindow.postMessage(errorEvent, '*');
             },
-          },
+          }
         );
       } else {
         console.error('Token sent via the sdk is empty');
@@ -101,7 +102,7 @@ const EmbedPage = React.memo(() => {
 
   const getExternalTokenFromSearchQuery = () => {
     return new URLSearchParams(window.location.search).get(
-      _AP_JWT_TOKEN_QUERY_PARAM_NAME,
+      _AP_JWT_TOKEN_QUERY_PARAM_NAME
     );
   };
 

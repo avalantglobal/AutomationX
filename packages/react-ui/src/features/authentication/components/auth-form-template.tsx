@@ -23,6 +23,7 @@ import { flagsHooks } from '../../../hooks/flags-hooks';
 import { SignInForm } from './sign-in-form';
 // import { SignUpForm } from './sign-up-form';
 import { ThirdPartyLogin } from './third-party-logins';
+import { useEmbedding } from '@/components/embed-provider';
 
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
   const [searchParams] = useSearchParams();
@@ -79,15 +80,14 @@ const AuthFormTemplate = React.memo(
     const redirectAfterLogin = useRedirectAfterLogin();
 
     // To redirect to PromptX login page
-    const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
-    const { data: environment } = flagsHooks.useFlag<string>(
-      ApFlagId.ENVIRONMENT,
-    );
 
     const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
     const { data: isEmailAuthEnabled } = flagsHooks.useFlag<boolean>(
-      ApFlagId.EMAIL_AUTH_ENABLED,
+      ApFlagId.EMAIL_AUTH_ENABLED
     );
+    const {
+      embedState: { externalLoginUrl },
+    } = useEmbedding();
     const data = {
       signin: {
         title: t('Welcome Back!'),
@@ -114,14 +114,15 @@ const AuthFormTemplate = React.memo(
     const [countdown, setCountdown] = useState(3);
 
     useEffect(() => {
+      console.log('external login', externalLoginUrl);
       // For non-dev environments, we'd like to login via external screen
-      if (environment !== 'dev' && !isNil(loginUrl)) {
+      if (!isNil(externalLoginUrl)) {
         const timer = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(timer);
               // Redirect when countdown finishes
-              window.location.href = loginUrl;
+              window.location.href = externalLoginUrl;
             }
             return prev - 1;
           });
@@ -132,7 +133,7 @@ const AuthFormTemplate = React.memo(
     }, []);
 
     // will redirect to promptX login page
-    if (environment !== 'dev' && !isNil(loginUrl)) {
+    if (!isNil(externalLoginUrl)) {
       return (
         <div className="flex justify-center items-center h-500">
           <p className="text-lg font-semibold text-gray-700 mb-4">
@@ -171,11 +172,13 @@ const AuthFormTemplate = React.memo(
             )
           ) : null}
         </CardContent>
-
-        <BottomNote isSignup={isSignUp}></BottomNote>
+        {/*
+         * todo(htookyaw) hide sign in/sign up note
+         */}
+        {/* <BottomNote isSignup={isSignUp}></BottomNote> */}
       </Card>
     );
-  },
+  }
 );
 
 AuthFormTemplate.displayName = 'AuthFormTemplate';

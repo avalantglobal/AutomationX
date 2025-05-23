@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
+import { flagsHooks } from '@/hooks/flags-hooks';
+import { ApFlagId, isNil } from '@activepieces/shared';
 
 type EmbeddingState = {
   isEmbedded: boolean;
@@ -19,6 +21,8 @@ type EmbeddingState = {
   useDarkBackground: boolean;
   hideHomeButtonInBuilder: boolean;
   emitHomeButtonClickedEvent: boolean;
+  externalLoginUrl: string | null;
+  enableChatBot: boolean;
 };
 
 const defaultState: EmbeddingState = {
@@ -33,6 +37,8 @@ const defaultState: EmbeddingState = {
   useDarkBackground: window.opener !== null,
   hideHomeButtonInBuilder: false,
   emitHomeButtonClickedEvent: false,
+  externalLoginUrl: null,
+  enableChatBot: true,
 };
 
 const EmbeddingContext = createContext<{
@@ -58,7 +64,7 @@ export const useNewWindow = () => {
       window.open(
         `${route}${searchParams ? '?' + searchParams : ''}`,
         '_blank',
-        'noopener noreferrer',
+        'noopener noreferrer'
       );
   }
 };
@@ -68,6 +74,19 @@ type EmbeddingProviderProps = {
 
 const EmbeddingProvider = ({ children }: EmbeddingProviderProps) => {
   const [state, setState] = useState<EmbeddingState>(defaultState);
+
+  const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
+  const { data: botxUrl } = flagsHooks.useFlag<string>(ApFlagId.BOTX_URL);
+  useEffect(() => {
+    const externalLoginUrl = loginUrl?.trim() || null;
+    const enableChatBot = !!botxUrl?.trim();
+
+    setState({
+      ...defaultState,
+      externalLoginUrl,
+      enableChatBot,
+    });
+  }, [loginUrl, botxUrl]);
 
   return (
     <EmbeddingContext.Provider

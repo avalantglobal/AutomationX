@@ -35,7 +35,7 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
-import { ApEdition, ApFlagId, Permission } from '@activepieces/shared';
+import { ApEdition, ApFlagId, isNil, Permission } from '@activepieces/shared';
 
 import { ShowPoweredBy } from '../../../components/show-powered-by';
 import { platformHooks } from '../../../hooks/platform-hooks';
@@ -46,6 +46,7 @@ import { SidebarInviteUserButton } from './sidebar-invite-user';
 import { SidebarPlatformAdminButton } from './sidebar-platform-admin';
 import { SidebarUser } from './sidebar-user';
 import UsageLimitsButton from './usage-limits-button';
+import { useEmbedding } from '@/components/embed-provider';
 
 type Link = {
   icon: React.ReactNode;
@@ -89,7 +90,7 @@ export const CustomTooltipLink = ({
         className={cn(
           'relative flex items-center gap-1 justify-between hover:bg-accent rounded-lg transition-colors',
           extraClasses,
-          isLinkActive && '!bg-primary/10 !text-primary',
+          isLinkActive && '!bg-primary/10 !text-primary'
         )}
       >
         <div
@@ -177,7 +178,9 @@ export function SidebarComponent({
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
   const location = useLocation();
   const { checkAccess } = useAuthorization();
-
+  const {
+    embedState: { externalLoginUrl },
+  } = useEmbedding();
   const showProjectUsage =
     location.pathname.startsWith('/project') && edition !== ApEdition.COMMUNITY;
   const showConnectionsLink =
@@ -219,7 +222,7 @@ export function SidebarComponent({
                           <SidebarMenuButton asChild>
                             <CustomTooltipLink
                               to={authenticationSession.appendProjectRoutePrefix(
-                                '/connections',
+                                '/connections'
                               )}
                               label={t('Connections')}
                               Icon={Link2}
@@ -232,8 +235,8 @@ export function SidebarComponent({
                   </SidebarGroup>
                 </ScrollArea>
               </SidebarContent>
-              {/* <SidebarFooter className="pb-4">
-                <SidebarMenu>
+              <SidebarFooter className="pb-4">
+                {/* <SidebarMenu>
                   <SidebarInviteUserButton />
                 </SidebarMenu>
                 <SidebarMenu>
@@ -245,9 +248,9 @@ export function SidebarComponent({
                     <UsageLimitsButton />
                   </SidebarMenu>
                 )}
-                {showProjectUsage && <Separator />}
-                <SidebarUser />
-              </SidebarFooter> */}
+                {showProjectUsage && <Separator />} */}
+                {isNil(externalLoginUrl) && <SidebarUser />}
+              </SidebarFooter>
             </SidebarContent>
           </Sidebar>
         )}

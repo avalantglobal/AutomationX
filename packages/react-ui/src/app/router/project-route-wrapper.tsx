@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { userHooks } from '../../hooks/user-hooks';
 import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { useEmbedding } from '@/components/embed-provider';
 
 export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -33,8 +34,9 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   const { checkAccess } = useAuthorization();
   const { data: user } = userHooks.useCurrentUser();
   const { data: ZERO_API_URL } = flagsHooks.useFlag<string>(
-    ApFlagId.ZERO_SERVICE_URL,
+    ApFlagId.ZERO_SERVICE_URL
   );
+  const { embedState } = useEmbedding();
   const { data: botxToken, isSuccess } = useQuery({
     queryKey: ['user-botx-jwt', user?.email],
     queryFn: () =>
@@ -43,7 +45,7 @@ export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
       }),
-    enabled: !!user, // Run only when user data is available
+    enabled: !!user && embedState.enableChatBot, // Run only when user data and botx api are available
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
@@ -98,7 +100,7 @@ const RedirectToCurrentProjectRoute: React.FC<
 
   const pathWithParams = `${path.startsWith('/') ? path : `/${path}`}`.replace(
     /:(\w+)/g,
-    (_, param) => params[param] ?? '',
+    (_, param) => params[param] ?? ''
   );
 
   const searchParamsString = searchParams.toString();
@@ -140,7 +142,6 @@ export const ProjectRouterWrapper = ({
       <AllowOnlyLoggedInUserOnlyGuard>
         <RedirectToCurrentProjectRoute path={path}>
           {element}
-          <FloatingChatButton />
         </RedirectToCurrentProjectRoute>
       </AllowOnlyLoggedInUserOnlyGuard>
     ),

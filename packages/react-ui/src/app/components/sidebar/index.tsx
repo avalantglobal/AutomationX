@@ -177,6 +177,7 @@ export function SidebarComponent({
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
   const location = useLocation();
   const { checkAccess } = useAuthorization();
+
   const { data: loginUrl } = flagsHooks.useFlag<string>(ApFlagId.LOGIN_URL);
   const showProjectUsage =
     location.pathname.startsWith('/project') && edition !== ApEdition.COMMUNITY;

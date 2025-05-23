@@ -171,6 +171,7 @@ const AuthFormTemplate = React.memo(
             )
           ) : null}
         </CardContent>
+
         <BottomNote isSignup={isSignUp}></BottomNote>
       </Card>
     );

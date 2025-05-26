@@ -21,7 +21,7 @@ import { HorizontalSeparatorWithText } from '../../../components/ui/separator';
 import { flagsHooks } from '../../../hooks/flags-hooks';
 
 import { SignInForm } from './sign-in-form';
-// import { SignUpForm } from './sign-up-form';
+import { SignUpForm } from './sign-up-form';
 import { ThirdPartyLogin } from './third-party-logins';
 
 const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
@@ -58,7 +58,7 @@ const AuthSeparator = ({
 }) => {
   const { data: thirdPartyAuthProviders } =
     flagsHooks.useFlag<ThirdPartyAuthnProvidersToShowMap>(
-      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP
+      ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP,
     );
 
   return (thirdPartyAuthProviders?.google || thirdPartyAuthProviders?.saml) &&
@@ -161,11 +161,10 @@ const AuthFormTemplate = React.memo(
           ></AuthSeparator>
           {isEmailAuthEnabled ? (
             isSignUp ? (
-              // <SignUpForm
-              //   setShowCheckYourEmailNote={setShowCheckYourEmailNote}
-              //   showCheckYourEmailNote={showCheckYourEmailNote}
-              // />
-              <SignInForm />
+              <SignUpForm
+                setShowCheckYourEmailNote={setShowCheckYourEmailNote}
+                showCheckYourEmailNote={showCheckYourEmailNote}
+              />
             ) : (
               <SignInForm />
             )

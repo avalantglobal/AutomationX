@@ -880,14 +880,17 @@
       ],
       "@activepieces/server-shared": ["packages/server/shared/src/index.ts"],
       "@activepieces/shared": ["packages/shared/src/index.ts"],
+      "@avalant/piece-avalant-anthropic-claude": [
+        "packages/pieces/community/avalant-anthropic-claude/src/index.ts"
+      ],
+      "@avalant/piece-facebook-messenger": [
+        "packages/pieces/community/facebook-messenger/src/index.ts"
+      ],
       "@avalant/piece-knowledge-base": [
         "packages/pieces/community/knowledge-base/src/index.ts"
       ],
       "@avalant/piece-microsoft-outlook-email": [
         "packages/pieces/community/microsoft-outlook-email/src/index.ts"
-      ],
-      "@avalant/piece-facebook-messenger": [
-        "packages/pieces/community/facebook-messenger/src/index.ts"
       ],
       "Aminos": ["packages/pieces/community/Aminos/src/index.ts"],
       "activepieces/piece-microsoft-dynamics-365-business-central": [

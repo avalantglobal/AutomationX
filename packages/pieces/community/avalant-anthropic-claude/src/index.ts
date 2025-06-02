@@ -79,7 +79,7 @@ export const avalantAnthropicClaude = createPiece({
   displayName: 'Avalant-anthropic-claude',
   auth: promptxAuth,
   minimumSupportedRelease: '0.36.1',
-  logoUrl: 'https://cdn.activepieces.com/pieces/avalant-anthropic-claude.png',
+  logoUrl: 'https://cdn.activepieces.com/pieces/claude.png',
   authors: [],
   actions: [
     askClaude,

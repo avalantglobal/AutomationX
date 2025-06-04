@@ -45,21 +45,21 @@ const fetchQuota = async (log: FastifyBaseLogger, zeroApiUrl: string, token: str
 }
 
 export const platformPlanService = (log: FastifyBaseLogger) => {
-    const isStandalone = system.isStandaloneVersion()
+    const isStandaloneVersion = system.isStandaloneVersion()
     const zeroApiUrl = system.get(AppSystemProp.ZERO_SERVICE_URL)
 
-    log.info({ isStandalone }, 'quota check init')
+    log.info({ isStandaloneVersion }, 'quota check init')
 
     return {
         async flowsExceeded(projectId: string): Promise<boolean> {
-            if (isStandalone) return false
+            if (isStandaloneVersion) return false
             const projectUserToken = await authenticationUtils.getProjectOwnerAndToken(projectId)
             const quota = await fetchQuota(log, zeroApiUrl!, projectUserToken.token)
             log.debug(quota.available, 'available quota check response for flowsExceeded')
             return !quota.available.automation_flow
         },
         async flowRunsExceeded(projectId: string): Promise<boolean> {
-            if (isStandalone) return false
+            if (isStandaloneVersion) return false
             const projectUserToken = await authenticationUtils.getProjectOwnerAndToken(projectId)
             const quota = await fetchQuota(log, zeroApiUrl!, projectUserToken.token)
             log.debug(quota.available, 'available quota check response for flowRunsExceeded')

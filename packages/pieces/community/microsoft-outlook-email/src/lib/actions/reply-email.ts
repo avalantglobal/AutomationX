@@ -149,10 +149,8 @@ export const replyEmail = createAction({
       }
     } catch (error) {
       console.error('Reply Email Error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(errorMessage);
     }
   },
 });

@@ -5,8 +5,8 @@ import { httpClient, HttpMethod } from '@activepieces/pieces-common';
 export const replyEmail = createAction({
   auth: outlookEmailAuth,
   name: 'reply-email',
-  displayName: 'Reply to an email',
-  description: 'Reply to an email',
+  displayName: 'Reply to Email',
+  description: 'Reply to an outlook email',
   props: {
     messageId: Property.ShortText({
       displayName: 'Message ID',

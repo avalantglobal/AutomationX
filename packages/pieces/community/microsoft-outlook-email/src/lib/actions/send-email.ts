@@ -6,7 +6,7 @@ export const sendEmail = createAction({
   auth: outlookEmailAuth,
   name: 'send-email',
   displayName: 'Send Email',
-  description: 'Send an email with advanced options (attachments, draft, etc.)',
+  description: 'Send an outlook email with advanced options (attachments, draft, etc.)',
   props: {
     to: Property.ShortText({
       displayName: 'Receiver Email (To)',

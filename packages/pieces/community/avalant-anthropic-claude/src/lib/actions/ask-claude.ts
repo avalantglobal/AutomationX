@@ -200,7 +200,7 @@ export const askClaude = createAction({
             : 1024;
 
           const req = await anthropic.messages.create({
-            model: 'claude-3-7-sonnet-20250219',
+            model: model ?? 'claude-3-7-sonnet-20250219',
             max_tokens: maxTokens,
             system: systemPrompt,
             thinking: {

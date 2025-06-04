@@ -6,14 +6,10 @@ import {
 import { askClaude } from './lib/actions/ask-claude';
 import {
   baseUrlMap,
-  getAccessToken,
-  getClaudeApiKey,
-  getUserProfile,
   Production,
   Test,
 } from './lib/common/common';
 import { extractStructuredDataAction } from './lib/actions/extract-structured-data';
-import { createCustomApiCallAction } from '@activepieces/pieces-common';
 
 export const promptxAuth = PieceAuth.CustomAuth({
   required: true,
@@ -84,22 +80,6 @@ export const avalantAnthropicClaude = createPiece({
   actions: [
     askClaude,
     extractStructuredDataAction,
-    createCustomApiCallAction({
-      auth: promptxAuth,
-      baseUrl: () => 'https://example.com',
-      authMapping: async (auth: any) => {
-        const accessToken = await getAccessToken(
-          auth?.server,
-          auth?.username,
-          auth?.password
-        );
-        let apiKey = getClaudeApiKey();
-        console.log('apiKey ', apiKey);
-        return {
-          'x-api-key': `${apiKey}`,
-        };
-      },
-    }),
   ],
   triggers: [],
 });

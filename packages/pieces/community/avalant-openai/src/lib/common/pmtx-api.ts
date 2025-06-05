@@ -1,17 +1,5 @@
 import { Store } from '@activepieces/pieces-framework';
 
-export const baseUrl = 'https://api.anthropic.com/v1';
-
-export const billingIssueMessage = `Error Occurred: 429 \n
-
-1. Ensure that you have enough tokens on your Anthropic platform. \n
-2. Top-up the credit in promptX's Billing page. \n
-3. Attempt the process again`;
-
-export const unauthorizedMessage = `Error Occurred: 401 \n
-
-Ensure that your API key is valid. \n
-`;
 type UrlConfig = {
   loginUrl: string;
   quotaCheckUrl: string;
@@ -62,7 +50,7 @@ export const baseUrlMap: Record<string, UrlConfig> = {
       'https://promptxai.com/zero-service/pmtx-ai-token-api/v1/token-used',
     myProfileUrl: 'https://centerapp.io/center//api/v1/users/me',
     getAIKeyUrl:
-      'https://promptxai.com/zero-service/pmtx-ai-token-api/v1/api-key?key=claudeKey',
+      'https://promptxai.com/zero-service/pmtx-ai-token-api/v1/api-key?key=openAIKey',
   },
   [Test]: {
     loginUrl: 'https://test.oneweb.tech/zero-service/pmtx/login',
@@ -72,7 +60,7 @@ export const baseUrlMap: Record<string, UrlConfig> = {
       'https://test.oneweb.tech/zero-service/pmtx-ai-token-api/v1/token-used',
     myProfileUrl: 'https://mocha.centerapp.io/center//api/v1/users/me',
     getAIKeyUrl:
-      'https://test.oneweb.tech/zero-service/pmtx-ai-token-api/v1/api-key?key=claudeKey',
+      'https://test.oneweb.tech/zero-service/pmtx-ai-token-api/v1/api-key?key=openAIKey',
   },
 };
 export const getAccessToken = async (
@@ -97,7 +85,6 @@ export const getAccessToken = async (
 
   return data?.access_token;
 };
-
 export const addTokenUsage = async (
   data: AppUsageData,
   server: string,
@@ -115,7 +102,6 @@ export const addTokenUsage = async (
     if (response.status !== 200) {
       throw new Error(`API error: ${response.statusText}`);
     }
-
     const result = await response.json();
     return result;
   } catch (error) {
@@ -123,7 +109,6 @@ export const addTokenUsage = async (
     throw error;
   }
 };
-
 export const getUsagePlan = async (server: string, access_token: string) => {
   const response = await fetch(baseUrlMap[server]['quotaCheckUrl'], {
     headers: {
@@ -137,7 +122,6 @@ export const getUsagePlan = async (server: string, access_token: string) => {
   const result: UsagePackage = await response.json();
   return result;
 };
-
 export const getUserProfile = async (server: string, access_token: string) => {
   const response = await fetch(baseUrlMap[server]['myProfileUrl'], {
     headers: {
@@ -183,8 +167,8 @@ export const getAiApiKey = async (server: string, access_token: string) => {
     throw new Error(`API error: ${response.statusText}`);
   }
   const result = await response.json();
-  if (!result?.claudeKey) {
-    throw new Error('No AI Api Key found for Avalant Claude');
+  if (!result?.openAIKey) {
+    throw new Error('No AI Api Key found for Avalant OpenAI');
   }
-  return result?.claudeKey;
+  return result?.openAIKey;
 };

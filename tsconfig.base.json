@@ -883,6 +883,9 @@
       "@avalant/piece-avalant-anthropic-claude": [
         "packages/pieces/community/avalant-anthropic-claude/src/index.ts"
       ],
+      "@avalant/piece-avalant-openai": [
+        "packages/pieces/community/avalant-openai/src/index.ts"
+      ],
       "@avalant/piece-facebook-messenger": [
         "packages/pieces/community/facebook-messenger/src/index.ts"
       ],

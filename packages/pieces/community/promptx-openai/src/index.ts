@@ -8,18 +8,9 @@ import { askAssistant } from './lib/actions/ask-assistant';
 import { visionPrompt } from './lib/actions/vision-prompt';
 
 import { extractStructuredDataAction } from './lib/actions/extract-structured-data-from-text';
-import {
-  AI_PROVIDERS_MAKRDOWN,
-  AuthenticationType,
-  httpClient,
-  HttpMethod,
-} from '@activepieces/pieces-common';
-import { baseUrl } from './lib/common/common';
 import { baseUrlMap, Production, Test } from './lib/common/pmtx-api';
+import { PieceCategory } from '@activepieces/shared';
 
-/**
- * Later version will use these action
- */
 // import { generateImage } from "./lib/actions/generate-image";
 // import { textToSpeech } from "./lib/actions/text-to-speech";
 // import { transcribeAudio } from "./lib/actions/transcribe-audio";
@@ -47,10 +38,12 @@ export const promptxAuth = PieceAuth.CustomAuth({
     }),
     username: Property.ShortText({
       displayName: 'Username',
+      description: "PromptX username",
       required: true,
     }),
     password: PieceAuth.SecretText({
       displayName: 'Password',
+      description: "PromptX password",
       required: true,
     }),
   },
@@ -88,16 +81,21 @@ export const promptxAuth = PieceAuth.CustomAuth({
 
 export const avalantOpenai = createPiece({
   displayName: 'PromptX OpenAI',
+  description: 'Talk to OpenAI ChatGPT tweaked for PromptX platform',
   auth: promptxAuth,
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/openai.png',
+  categories: [PieceCategory.ARTIFICIAL_INTELLIGENCE],
   authors: [],
   actions: [
     askOpenAI,
     askAssistant,
     visionPrompt,
     extractStructuredDataAction,
-    //  textToSpeech,  transcribeAudio, translateAudio, generateImage
+    // textToSpeech,
+    // transcribeAudio,
+    // translateAudio,
+    // generateImage,
   ],
   triggers: [],
 });

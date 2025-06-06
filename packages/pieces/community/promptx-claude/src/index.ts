@@ -10,6 +10,7 @@ import {
   Test,
 } from './lib/common/common';
 import { extractStructuredDataAction } from './lib/actions/extract-structured-data';
+import { PieceCategory } from '@activepieces/shared';
 
 export const promptxAuth = PieceAuth.CustomAuth({
   required: true,
@@ -33,10 +34,12 @@ export const promptxAuth = PieceAuth.CustomAuth({
     }),
     username: Property.ShortText({
       displayName: 'Username',
+      description: "PromptX username",
       required: true,
     }),
     password: PieceAuth.SecretText({
       displayName: 'Password',
+      description: "PromptX password",
       required: true,
     }),
   },
@@ -73,9 +76,11 @@ export const promptxAuth = PieceAuth.CustomAuth({
 });
 export const avalantAnthropicClaude = createPiece({
   displayName: 'PromptX Claude',
+  description: 'Talk to Anthropic Claude AI tweaked for PromptX platform',
   auth: promptxAuth,
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/claude.png',
+  categories: [PieceCategory.ARTIFICIAL_INTELLIGENCE],
   authors: [],
   actions: [
     askClaude,

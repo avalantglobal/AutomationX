@@ -1,7 +1,7 @@
 {
-  "name": "pieces-avalant-anthropic-claude",
+  "name": "pieces-promptx-claude",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/pieces/community/avalant-anthropic-claude/src",
+  "sourceRoot": "packages/pieces/community/promptx-claude/src",
   "projectType": "library",
   "release": {
     "version": {
@@ -19,14 +19,14 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/packages/pieces/community/avalant-anthropic-claude",
-        "tsConfig": "packages/pieces/community/avalant-anthropic-claude/tsconfig.lib.json",
-        "packageJson": "packages/pieces/community/avalant-anthropic-claude/package.json",
-        "main": "packages/pieces/community/avalant-anthropic-claude/src/index.ts",
+        "outputPath": "dist/packages/pieces/community/promptx-claude",
+        "tsConfig": "packages/pieces/community/promptx-claude/tsconfig.lib.json",
+        "packageJson": "packages/pieces/community/promptx-claude/package.json",
+        "main": "packages/pieces/community/promptx-claude/src/index.ts",
         "assets": [
-          "packages/pieces/community/avalant-anthropic-claude/*.md",
+          "packages/pieces/community/promptx-claude/*.md",
           {
-            "input": "packages/pieces/community/avalant-anthropic-claude/src/i18n",
+            "input": "packages/pieces/community/promptx-claude/src/i18n",
             "output": "./src/i18n",
             "glob": "**/!(i18n.json)"
           }

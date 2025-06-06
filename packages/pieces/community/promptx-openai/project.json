@@ -1,7 +1,7 @@
 {
-  "name": "pieces-avalant-openai",
+  "name": "pieces-promptx-openai",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/pieces/community/avalant-openai/src",
+  "sourceRoot": "packages/pieces/community/promptx-openai/src",
   "projectType": "library",
   "release": {
     "version": {
@@ -17,14 +17,14 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/pieces/community/avalant-openai",
-        "tsConfig": "packages/pieces/community/avalant-openai/tsconfig.lib.json",
-        "packageJson": "packages/pieces/community/avalant-openai/package.json",
-        "main": "packages/pieces/community/avalant-openai/src/index.ts",
+        "outputPath": "dist/packages/pieces/community/promptx-openai",
+        "tsConfig": "packages/pieces/community/promptx-openai/tsconfig.lib.json",
+        "packageJson": "packages/pieces/community/promptx-openai/package.json",
+        "main": "packages/pieces/community/promptx-openai/src/index.ts",
         "assets": [
-          "packages/pieces/community/avalant-openai/*.md",
+          "packages/pieces/community/promptx-openai/*.md",
           {
-            "input": "packages/pieces/community/avalant-openai/src/i18n",
+            "input": "packages/pieces/community/promptx-openai/src/i18n",
             "output": "./src/i18n",
             "glob": "**/!(i18n.json)"
           }

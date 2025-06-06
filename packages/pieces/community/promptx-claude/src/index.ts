@@ -3,27 +3,13 @@ import {
   PieceAuth,
   Property,
 } from '@activepieces/pieces-framework';
-import { askOpenAI } from './lib/actions/ask-chatgpt';
-import { askAssistant } from './lib/actions/ask-assistant';
-import { visionPrompt } from './lib/actions/vision-prompt';
-
-import { extractStructuredDataAction } from './lib/actions/extract-structured-data-from-text';
+import { askClaude } from './lib/actions/ask-claude';
 import {
-  AI_PROVIDERS_MAKRDOWN,
-  AuthenticationType,
-  httpClient,
-  HttpMethod,
-} from '@activepieces/pieces-common';
-import { baseUrl } from './lib/common/common';
-import { baseUrlMap, Production, Test } from './lib/common/pmtx-api';
-
-/**
- * Later version will use these action
- */
-// import { generateImage } from "./lib/actions/generate-image";
-// import { textToSpeech } from "./lib/actions/text-to-speech";
-// import { transcribeAudio } from "./lib/actions/transcribe-audio";
-// import { translateAudio } from "./lib/actions/translate-audio";
+  baseUrlMap,
+  Production,
+  Test,
+} from './lib/common/common';
+import { extractStructuredDataAction } from './lib/actions/extract-structured-data';
 
 export const promptxAuth = PieceAuth.CustomAuth({
   required: true,
@@ -85,19 +71,15 @@ export const promptxAuth = PieceAuth.CustomAuth({
     }
   },
 });
-
-export const avalantOpenai = createPiece({
-  displayName: 'Avalant-openai',
+export const avalantAnthropicClaude = createPiece({
+  displayName: 'PromptX Claude',
   auth: promptxAuth,
   minimumSupportedRelease: '0.36.1',
-  logoUrl: 'https://cdn.activepieces.com/pieces/openai.png',
+  logoUrl: 'https://cdn.activepieces.com/pieces/claude.png',
   authors: [],
   actions: [
-    askOpenAI,
-    askAssistant,
-    visionPrompt,
+    askClaude,
     extractStructuredDataAction,
-    //  textToSpeech,  transcribeAudio, translateAudio, generateImage
   ],
   triggers: [],
 });

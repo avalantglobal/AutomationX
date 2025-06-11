@@ -1,4 +1,4 @@
-// import { DEFAULT_PLAN } from '@activepieces/ee-shared'
+// import { OPENSOURCE_PLAN } from '@activepieces/ee-shared'
 import {
     ActivepiecesError,
     ApEdition,

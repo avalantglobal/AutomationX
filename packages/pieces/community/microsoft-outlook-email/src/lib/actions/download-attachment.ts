@@ -1,4 +1,4 @@
-import { createAction, Property, FilesService } from '@activepieces/pieces-framework';
+import { createAction, Property } from '@activepieces/pieces-framework';
 import { outlookEmailAuth } from '../..';
 import { httpClient, HttpMethod } from '@activepieces/pieces-common';
 
@@ -32,10 +32,13 @@ export const downloadAttachment = createAction({
     const savedFiles = [];
 
     for (const attachment of attachments) {
-      if (attachment['@odata.type'] === '#microsoft.graph.fileAttachment' && attachment.contentBytes) {
+      if (
+        attachment['@odata.type'] === '#microsoft.graph.fileAttachment' &&
+        attachment.contentBytes
+      ) {
         // Convert base64 to buffer
         const fileBuffer = Buffer.from(attachment.contentBytes, 'base64');
-        
+
         // Save file using FilesService
         const savedFile = await files.write({
           fileName: attachment.name,

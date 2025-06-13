@@ -22,6 +22,6 @@ export const microsoftOutlookEmail = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/microsoft-outlook.png',
   authors: [],
-  actions: [sendEmail, replyEmail,downloadAttachment],
+  actions: [sendEmail, replyEmail, downloadAttachment],
   triggers: [newEmailTrigger],
 });

@@ -1,4 +1,8 @@
-import { createPiece, PieceAuth,OAuth2PropertyValue } from '@activepieces/pieces-framework';
+import {
+  createPiece,
+  PieceAuth,
+  OAuth2PropertyValue,
+} from '@activepieces/pieces-framework';
 import { createCustomApiCallAction } from '@activepieces/pieces-common';
 import { newEmailTrigger } from './lib/triggers/new-email';
 import { sendEmail } from './lib/actions/send-email';

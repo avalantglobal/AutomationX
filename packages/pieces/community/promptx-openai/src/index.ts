@@ -49,16 +49,26 @@ export const promptxAuth = PieceAuth.CustomAuth({
         error: 'Empty Username or Password',
       };
     }
-    const response = await fetch(baseUrlMap[auth.server]['loginUrl'], {
+
+    let response: Response;
+
+    const loginUrl = baseUrlMap[auth.server].loginUrl;
+    const isStaging = auth.server === 'staging';
+    const body = isStaging
+      ? new URLSearchParams({ username, password }).toString()
+      : JSON.stringify({ username, password });
+    const headers = {
+      'Content-Type': isStaging
+      ? 'application/x-www-form-urlencoded'
+      : 'application/json',
+    };
+
+    response = await fetch(loginUrl, {
       method: 'POST',
-      body: new URLSearchParams({
-        username: username,
-        password: password,
-      }).toString(),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      body,
+      headers,
     });
+
     if (response.status === 200) {
       return {
         valid: true,

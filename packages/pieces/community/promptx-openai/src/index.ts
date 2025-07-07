@@ -50,8 +50,6 @@ export const promptxAuth = PieceAuth.CustomAuth({
       };
     }
 
-    let response: Response;
-
     const loginUrl = baseUrlMap[auth.server].loginUrl;
     const isStaging = auth.server === 'staging';
     const body = isStaging
@@ -59,11 +57,11 @@ export const promptxAuth = PieceAuth.CustomAuth({
       : JSON.stringify({ username, password });
     const headers = {
       'Content-Type': isStaging
-      ? 'application/x-www-form-urlencoded'
-      : 'application/json',
+        ? 'application/x-www-form-urlencoded'
+        : 'application/json',
     };
 
-    response = await fetch(loginUrl, {
+    const response = await fetch(loginUrl, {
       method: 'POST',
       body,
       headers,

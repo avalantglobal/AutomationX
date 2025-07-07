@@ -81,7 +81,6 @@ export const getAccessToken = async ({
   username,
   password,
 }: PromptXAuthType) => {
-  let response;
   const isStaging = server === 'staging';
   const body = isStaging
     ? new URLSearchParams({ username, password }).toString()
@@ -93,13 +92,12 @@ export const getAccessToken = async ({
       : 'application/json',
   };
 
-  response = await fetch(baseUrlMap[server].loginUrl, {
+  const response = await fetch(baseUrlMap[server].loginUrl, {
     method: 'POST',
     body,
     headers,
   });
 
-  
   const data: AccessTokenResponse = await response.json();
 
   if (response.status !== 200) {

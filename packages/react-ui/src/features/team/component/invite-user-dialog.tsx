@@ -51,6 +51,7 @@ import {
   isNil,
   Permission,
   PlatformRole,
+  ProjectMemberRole,
   UserInvitationWithLink,
 } from '@activepieces/shared';
 
@@ -69,11 +70,15 @@ const FormSchema = Type.Object({
     errorMessage: t('Please select platform role'),
     required: true,
   }),
-  projectRole: Type.Optional(
-    Type.String({
-      required: true,
-    }),
-  ),
+  // projectRole: Type.Optional(
+  //   Type.String({
+  //     required: true,
+  //   }),
+  // ),
+  projectRole: Type.Enum(ProjectMemberRole, {
+    errorMessage: t('Please select project role'),
+    required: true,
+  }),
 });
 
 type FormSchema = Static<typeof FormSchema>;
@@ -109,7 +114,7 @@ export const InviteUserDialog = ({ children }: { children?: ReactNode }) => {
           return userInvitationApi.invite({
             email: data.email.trim().toLowerCase(),
             type: data.type,
-            projectRole: data.projectRole!,
+            projectRole: data.projectRole,
             projectId: project.id,
           });
       }
@@ -144,7 +149,7 @@ export const InviteUserDialog = ({ children }: { children?: ReactNode }) => {
       platform.plan.projectRolesEnabled,
   });
 
-  const roles = rolesData?.data ?? [];
+  const roles = rolesData ?? [];
 
   const form = useForm<FormSchema>({
     resolver: typeboxResolver(FormSchema),
@@ -154,11 +159,12 @@ export const InviteUserDialog = ({ children }: { children?: ReactNode }) => {
         ? InvitationType.PROJECT
         : InvitationType.PLATFORM,
       platformRole: PlatformRole.ADMIN,
-      projectRole: roles?.[0]?.name,
+      projectRole: ProjectMemberRole.VIEWER,
     },
   });
 
   const onSubmit = (data: FormSchema) => {
+    console.log(data);
     if (data.type === InvitationType.PROJECT && !data.projectRole) {
       form.setError('projectRole', {
         type: 'required',
@@ -294,9 +300,9 @@ export const InviteUserDialog = ({ children }: { children?: ReactNode }) => {
                           <Select
                             onValueChange={(value) => {
                               const selectedRole = roles.find(
-                                (role) => role.name === value,
+                                (role) => role.value === value,
                               );
-                              field.onChange(selectedRole?.name);
+                              field.onChange(selectedRole?.value);
                             }}
                             defaultValue={field.value}
                           >
@@ -307,7 +313,10 @@ export const InviteUserDialog = ({ children }: { children?: ReactNode }) => {
                               <SelectGroup>
                                 <SelectLabel>{t('Roles')}</SelectLabel>
                                 {roles.map((role) => (
-                                  <SelectItem key={role.name} value={role.name}>
+                                  <SelectItem
+                                    key={role.name}
+                                    value={role.value}
+                                  >
                                     {role.name}
                                   </SelectItem>
                                 ))}

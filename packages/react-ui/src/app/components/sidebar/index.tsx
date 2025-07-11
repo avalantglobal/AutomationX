@@ -238,10 +238,10 @@ export function SidebarComponent({
                 </ScrollArea>
               </SidebarContent>
               <SidebarFooter className="pb-4">
-                {/* <SidebarMenu>
+                <SidebarMenu>
                   <SidebarInviteUserButton />
                 </SidebarMenu>
-                <SidebarMenu>
+                {/* <SidebarMenu>
                   <HelpAndFeedback />
                 </SidebarMenu>
                 {showProjectUsage && (

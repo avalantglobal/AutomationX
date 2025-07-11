@@ -1,7 +1,7 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
 import { outlookEmailAuth } from '../..';
 import { httpClient, HttpMethod } from '@activepieces/pieces-common';
-
+import { BodyType, Message } from '@microsoft/microsoft-graph-types';
 export const sendEmail = createAction({
   auth: outlookEmailAuth,
   name: 'send-email',
@@ -33,6 +33,18 @@ export const sendEmail = createAction({
     subject: Property.ShortText({
       displayName: 'Subject',
       required: true,
+    }),
+    bodyFormat: Property.StaticDropdown({
+      displayName: 'Body Format',
+      description: 'The format of the email body.',
+      required: true,
+      options: {
+        options: [
+          { label: 'HTML', value: 'HTML' },
+          { label: 'Text', value: 'Text' },
+        ],
+      },
+      defaultValue: 'HTML',
     }),
     body: Property.LongText({
       displayName: 'Body',
@@ -77,20 +89,30 @@ export const sendEmail = createAction({
       sender_name,
       subject,
       body,
+      bodyFormat,
       attachment,
       attachment_name,
       draft,
     } = propsValue;
 
-    const message: any = {
+    const message: Message = {
       subject,
       body: {
-        contentType: 'HTML',
+        contentType: bodyFormat as BodyType,
         content: body,
       },
       toRecipients: formatEmails(to),
-      attachment,
     };
+
+    if (attachment) {
+      message.attachments = [
+        {
+          '@odata.type': '#microsoft.graph.fileAttachment',
+          name: attachment_name || attachment.filename,
+          contentBytes: attachment.base64,
+        } as any,
+      ];
+    }
 
     if (cc) message.ccRecipients = formatEmails(cc);
     if (bcc) message.bccRecipients = formatEmails(bcc);

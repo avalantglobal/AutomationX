@@ -6,14 +6,21 @@ import {
   ProjectRole,
   SeekPage,
   ListProjectMembersForProjectRoleRequestQuery,
+  ProjectMemberRole,
+  ListProjectMemberRoleBody,
 } from '@activepieces/shared';
 
 export const projectRoleApi = {
   async get(id: string) {
     return await api.get<ProjectRole>(`/v1/project-roles/${id}`);
   },
+  // async list() {
+  //   return await api.get<SeekPage<ProjectRole>>(`/v1/project-roles`);
+  // },
   async list() {
-    return await api.get<SeekPage<ProjectRole>>(`/v1/project-roles`);
+    return await api.get<ListProjectMemberRoleBody[]>(
+      `/v1/project-members/roles`,
+    );
   },
   async create(requestBody: CreateProjectRoleRequestBody) {
     return await api.post<ProjectRole>('/v1/project-roles', requestBody);

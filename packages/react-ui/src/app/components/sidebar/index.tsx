@@ -214,13 +214,11 @@ export function SidebarComponent({
                   <SidebarGroup>
                     <SidebarGroupLabel>{t('Misc')}</SidebarGroupLabel>
                     <SidebarMenu>
-                      {isCloudPlatform && (
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild>
-                            <SidebarPlatformAdminButton />
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      )}
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <SidebarPlatformAdminButton />
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
                       {showConnectionsLink && (
                         <SidebarMenuItem>
                           <SidebarMenuButton asChild>
@@ -240,10 +238,10 @@ export function SidebarComponent({
                 </ScrollArea>
               </SidebarContent>
               <SidebarFooter className="pb-4">
-                {/* <SidebarMenu>
+                <SidebarMenu>
                   <SidebarInviteUserButton />
                 </SidebarMenu>
-                <SidebarMenu>
+                {/* <SidebarMenu>
                   <HelpAndFeedback />
                 </SidebarMenu>
                 {showProjectUsage && (

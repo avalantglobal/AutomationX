@@ -178,7 +178,6 @@ export function SidebarComponent({
   removeBottomPadding = false,
 }: SidebarProps) {
   const { platform } = platformHooks.useCurrentPlatform();
-  const isCloudPlatform = platformHooks.useIsCloudPlatform();
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
 
   const location = useLocation();
@@ -238,9 +237,9 @@ export function SidebarComponent({
                 </ScrollArea>
               </SidebarContent>
               <SidebarFooter className="pb-4">
-                <SidebarMenu>
+                {/* <SidebarMenu>
                   <SidebarInviteUserButton />
-                </SidebarMenu>
+                </SidebarMenu> */}
                 {/* <SidebarMenu>
                   <HelpAndFeedback />
                 </SidebarMenu>

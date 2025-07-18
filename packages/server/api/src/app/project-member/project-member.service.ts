@@ -46,6 +46,7 @@ export const projectMemberService = {
         {
             platformId,
             projectId,
+            projectRoleId,
             cursorRequest,
             limit,
         }: ListParams,
@@ -66,6 +67,10 @@ export const projectMemberService = {
 
         if (projectId) {
             queryBuilder.andWhere({ projectId })
+        }
+
+        if (projectRoleId) {
+            queryBuilder.andWhere({ projectRoleId })
         }
 
         const { data, cursor } = await paginator.paginate(queryBuilder)
@@ -95,6 +100,7 @@ type DeleteParams = {
 type ListParams = {
     platformId: string
     projectId?: string
+    projectRoleId?: string
     cursorRequest: Cursor | null
     limit: number
 }

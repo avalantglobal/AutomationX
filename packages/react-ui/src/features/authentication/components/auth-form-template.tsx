@@ -101,7 +101,7 @@ const AuthFormTemplate = React.memo(
       },
     }[form];
 
-    if (token) {
+    if (token && !tokenFromUrl) {
       redirectAfterLogin();
     }
 

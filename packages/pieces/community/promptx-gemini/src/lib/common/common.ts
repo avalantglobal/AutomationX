@@ -1,4 +1,5 @@
 import { httpClient, HttpMethod } from '@activepieces/pieces-common';
+
 export const defaultLLM = 'gemini-1.5-flash';
 
 export const allowedLLMs = [
@@ -8,10 +9,14 @@ export const allowedLLMs = [
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
   'gemini-2.5-flash',
-  'gemini-2.5-pro'
+  'gemini-2.5-pro',
 ];
 
-export const getGeminiModelOptions = async ({ auth}: { auth: string | undefined | unknown }) => {
+export const getGeminiModelOptions = async ({
+  auth,
+}: {
+  auth: string | undefined | unknown;
+}) => {
   if (!auth) {
     return {
       disabled: true,

@@ -4,16 +4,10 @@ import { join } from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleAIFileManager } from '@google/generative-ai/server';
 import { nanoid } from 'nanoid';
-import {
-  Property,
-  createAction,
-} from '@activepieces/pieces-framework';
+import { Property, createAction } from '@activepieces/pieces-framework';
 import { googleGeminiAuth } from '../../index';
 import { defaultLLM, getGeminiModelOptions } from '../common/common';
-import {
-  getApiKeyFormAuth,
-  PromptXAuthType,
-} from '../common/pmtx-api';
+import { getApiKeyFormAuth, PromptXAuthType } from '../common/pmtx-api';
 
 export const generateContentFromImageAction = createAction({
   description:
@@ -30,7 +24,7 @@ export const generateContentFromImageAction = createAction({
     image: Property.File({
       displayName: 'Image',
       required: true,
-      description: 'The image to generate content from.'
+      description: 'The image to generate content from.',
     }),
     model: Property.Dropdown({
       displayName: 'Model',
@@ -38,31 +32,36 @@ export const generateContentFromImageAction = createAction({
       description: 'The model which will generate the completion',
       refreshers: [],
       defaultValue: defaultLLM,
-      options: async ({ auth }) =>{
-              let geminiKey: string;
-              try {
-                geminiKey = String(await getApiKeyFormAuth(auth as PromptXAuthType));
-              } catch (error) {
-                console.error(error);
-                return {
-                  disabled: true,
-                  placeholder: 'Unable to fetch OpenAI key. Check connection',
-                  options: [],
-                };
-              }
-      
-              return getGeminiModelOptions( {auth:geminiKey} )
-            },
+      options: async ({ auth }) => {
+        let geminiKey: string;
+        try {
+          geminiKey = String(await getApiKeyFormAuth(auth as PromptXAuthType));
+        } catch (error) {
+          console.error(error);
+          return {
+            disabled: true,
+            placeholder: 'Unable to fetch OpenAI key. Check connection',
+            options: [],
+          };
+        }
+
+        return getGeminiModelOptions({ auth: geminiKey });
+      },
     }),
   },
 
   async run({ auth, propsValue }) {
-    const tempFilePath = join(tmpdir(), `gemini-image-${nanoid()}.${propsValue.image.extension}`);
+    const tempFilePath = join(
+      tmpdir(),
+      `gemini-image-${nanoid()}.${propsValue.image.extension}`
+    );
 
     try {
       const imageBuffer = Buffer.from(propsValue.image.base64, 'base64');
       await fs.writeFile(tempFilePath, imageBuffer);
-      const geminiKey : string = await getApiKeyFormAuth(auth as PromptXAuthType);
+      const geminiKey: string = await getApiKeyFormAuth(
+        auth as PromptXAuthType
+      );
       const fileManager = new GoogleAIFileManager(geminiKey);
       const uploadResult = await fileManager.uploadFile(tempFilePath, {
         mimeType: `image/${propsValue.image.extension}`,

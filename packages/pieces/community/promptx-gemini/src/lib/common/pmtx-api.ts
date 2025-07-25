@@ -210,15 +210,17 @@ export const getAiApiKey = async (
   return result.geminiKey;
 };
 
-export const getApiKeyFormAuth = async (auth : PromptXAuthType):Promise<string>=> {
-          let accessToken: string;
-          let geminiKey: string;
-          try {
-            accessToken = await getAccessToken(auth);
-            geminiKey = await getAiApiKey(auth.server, accessToken);
-            return geminiKey
-          } catch (error) {
-            console.error(error);
-            throw new Error('Unable to fetch gemini key. Check connection');
-          }
+export const getApiKeyFormAuth = async (
+  auth: PromptXAuthType
+): Promise<string> => {
+  let accessToken: string;
+  let geminiKey: string;
+  try {
+    accessToken = await getAccessToken(auth);
+    geminiKey = await getAiApiKey(auth.server, accessToken);
+    return geminiKey;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Unable to fetch gemini key. Check connection');
+  }
 };

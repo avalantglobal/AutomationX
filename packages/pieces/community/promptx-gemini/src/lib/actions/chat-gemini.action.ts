@@ -8,10 +8,8 @@ import { z } from 'zod';
 import { googleGeminiAuth } from '../../index';
 import { defaultLLM, getGeminiModelOptions } from '../common/common';
 import { propsValidation } from '@activepieces/pieces-common';
-import {
-  getApiKeyFormAuth,
-  PromptXAuthType,
-} from '../common/pmtx-api';
+import { getApiKeyFormAuth, PromptXAuthType } from '../common/pmtx-api';
+
 export const chatGemini = createAction({
   auth: googleGeminiAuth,
   name: 'chat_gemini',
@@ -24,7 +22,7 @@ export const chatGemini = createAction({
       description: 'The model which will generate the completion',
       refreshers: [],
       defaultValue: defaultLLM,
-      options: async ({ auth }) =>{
+      options: async ({ auth }) => {
         let geminiKey: string;
         try {
           geminiKey = String(await getApiKeyFormAuth(auth as PromptXAuthType));
@@ -37,8 +35,8 @@ export const chatGemini = createAction({
           };
         }
 
-        return getGeminiModelOptions( {auth:geminiKey} )
-      } ,
+        return getGeminiModelOptions({ auth: geminiKey });
+      },
     }),
     prompt: Property.LongText({
       displayName: 'Prompt',
@@ -58,7 +56,7 @@ export const chatGemini = createAction({
     });
 
     const { model, prompt, memoryKey } = propsValue;
-    const geminiKey : string = await getApiKeyFormAuth(auth as PromptXAuthType);
+    const geminiKey: string = await getApiKeyFormAuth(auth as PromptXAuthType);
     const genAI = new GoogleGenerativeAI(geminiKey);
     const geminiModel = genAI.getGenerativeModel({ model });
     let history: Content[] = [];

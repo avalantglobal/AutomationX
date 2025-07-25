@@ -1,9 +1,13 @@
-import { createPiece, PieceAuth,  Property} from '@activepieces/pieces-framework';
+import {
+  createPiece,
+  PieceAuth,
+  Property,
+} from '@activepieces/pieces-framework';
 import { PieceCategory } from '@activepieces/shared';
 import { chatGemini } from './lib/actions/chat-gemini.action';
 import { generateContentFromImageAction } from './lib/actions/generate-content-from-image.action';
 import { generateContentAction } from './lib/actions/generate-content.action';
-import { baseUrlMap} from './lib/common/pmtx-api';
+import { baseUrlMap } from './lib/common/pmtx-api';
 
 export const googleGeminiAuth = PieceAuth.CustomAuth({
   required: true,
@@ -78,15 +82,11 @@ export const googleGeminiAuth = PieceAuth.CustomAuth({
 export const googleGemini = createPiece({
   displayName: 'PromptX Google Gemini',
   auth: googleGeminiAuth,
-  description: 'Use the new Gemini models from Google',
-  minimumSupportedRelease: '0.30.0',
+  description: 'Talk to Google Gemini using your available PromptX credits. Use the many tools Gemini has to offer using your PromptX credits per request',
+  minimumSupportedRelease: '0.63.0',
   logoUrl: 'https://cdn.activepieces.com/pieces/google-gemini.png',
   categories: [PieceCategory.ARTIFICIAL_INTELLIGENCE],
-  authors: ["tumrabert"],
-  actions: [
-    generateContentAction,
-    generateContentFromImageAction,
-    chatGemini,
-  ],
+  authors: ['tumrabert'],
+  actions: [generateContentAction, generateContentFromImageAction, chatGemini],
   triggers: [],
 });
